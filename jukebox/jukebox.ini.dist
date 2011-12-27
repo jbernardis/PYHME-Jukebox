@@ -4,6 +4,8 @@
 # what you want - the program will assume the default value if nothing is specified
 #
 
+[jukebox]
+
 #
 # The IP address and port of the file server for the MP3 files.  As currently written, jukebox ONLY supports
 # the use of pyTivo as the file server.  As such, this should be the IP address and port of ptTivo.

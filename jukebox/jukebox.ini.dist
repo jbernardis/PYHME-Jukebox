@@ -1,0 +1,93 @@
+#
+# This file contains a description of all of the option that can be specified in the jukebox.ini file.
+# Note that although the defaults are shown below, it is not necessary to specify the default value if that is
+# what you want - the program will assume the default value if nothing is specified
+#
+
+#
+# The IP address and port of the file server for the MP3 files.  As currently written, jukebox ONLY supports
+# the use of pyTivo as the file server.  As such, this should be the IP address and port of ptTivo.
+# If not specified, the IP address defaults to the address of this machine
+# If not specified, the port is gotten from the pyTivo config file (see below).  If it is not in the pyTivo
+# config file, a configuration error is thrown
+#
+
+serverip = server IP address
+serverport = server port
+
+#
+# You MUST specify where to find the pyTivo configuration.  An error is thrown if this is omitted or if this
+# file does not exist.  This file is seached for two things: the port number, and the name/location of music 
+# shares.  The port number is discussed above.  pyTivo must be serving at least one music share.  If it is not,
+# a configuration error is thrown.  jukebox supports multiple music shares.
+#
+pytivo = location of pyTivo.conf
+
+#
+# if there is no input from the remote control, and the menu screens are currently being displayed, AND a
+# now-playing list is active (i.e. music is playing) then jukebox will automatically switch to the now-playing
+# view after a specified number of seconds.  The default value is 120 (2 minutes).  A value of 0 defeats this logic.
+#
+
+autoswitchnp = 120
+
+#
+# if there is no input from the user, the screen will totally blank after a specified number of seconds.
+# the default is 600 (10 minutes).  Any keypress will wake the application (the keypress will otherwise be
+# ignored).  As above, a value of 0 will defeat this logic.
+#
+
+screensaver = 600
+
+#
+# A note on both of these timers: jukebox only checks for these conditions once every minute.  This means that the
+# actual time until screen blanking or switching could be up to 1 minute from the time you specify
+#
+
+# 
+# all of the png files that make up the on-screen image of jukebox are contained in a subdirectory named "skins".  If you
+# wish to override any (or all) of them, place them in a subdirectory under "skins" and whatever name you have chosen for
+# that subdirectory should be specified here.  The default is None meaning that the default files will be used (don't 
+# actually specify skin=None - just omit the line).
+#
+# note that the program does not dynamically resize on-screen objects.  It is important that the png files you specify
+# have the same geometry as the originals
+#
+skin = 
+
+#
+# the following options are all also changeable from within the GUI.  If they are changed there, this file
+# is re-written.  If these are not specified here, they all assume a default of False.
+#
+# These options control the shuffle and loop logic for Albums, Artists, Playlists, and Tracks.
+#
+# shuffle controls the order of play.  If shuffle is False, the songs are played in the order in which the
+# list is created (track number for albums, alphabetical for artists and tracks, and user-controlled for playlists)
+#
+# loop controls whether the list of songs starts over again once it is finished.  False implies no, True, yes.
+#
+# note that loop differs from repeat - which controls only whether or not the current song is to be repeated.   Repeat
+# is only setable on the now-playing screen
+#
+# the album options come into play in the following circumstances:  When an entire album is chosen for play under 
+# "Album Artist" or "Album"
+#
+# the artist options come into play when an entire artist is played under "Track Artist"
+#
+# the playlist options come into play when a playlist is chosen for playback under "Playlists"
+#
+# the track options come into play when All Tracks are chosen for playback from the main menu.
+#
+# ALL other situations are essentially a single song.  Now playing is invoked with a single song, and all of the
+# options are turned off.  As you add further songs to the now playing list, then these options become useful and
+# they can be changed on the now playing screen
+#
+
+albumshuffle = False
+albumloop = False
+artistshuffle = False
+artistloop = False
+playlistshuffle = False
+playlistloop = False
+trackshuffle = False
+trackloop = False

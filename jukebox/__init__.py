@@ -222,7 +222,9 @@ class Jukebox(Application):
 		mainMenu.setCount(CHOICE_ALBUM_ARTIST, nAlbumArtist)		
 		mainMenu.setCount(CHOICE_TRACK_ARTIST, nTrackArtist)		
 		mainMenu.setCount(CHOICE_ALBUM, nAlbum)		
-		mainMenu.setCount(CHOICE_TRACK, nSong)		
+		mainMenu.setCount(CHOICE_TRACK, nSong)	
+		
+		self.updateMenus(False)	
 		
 		self.currentArtist = None
 		self.currentAlbum = None

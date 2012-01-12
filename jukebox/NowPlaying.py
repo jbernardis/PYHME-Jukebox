@@ -179,9 +179,12 @@ class NowPlaying:
 		album = track.getAlbum()
 		art = album.getArt()
 		if art:
-			self.vwAlbumArt.set_resource(Image(self.app, data=art), flags=RSRC_VALIGN_TOP+RSRC_HALIGN_LEFT)
+			img = Image(self.app, data=art)
+			self.vwAlbumArt.set_resource(img, flags=RSRC_VALIGN_TOP+RSRC_HALIGN_LEFT)
+			self.app.setScreenSaverArt(img)
 		else:
 			self.vwAlbumArt.set_resource(self.app.myimages.DefaultArt)
+			self.app.setScreenSaverArt(self.app.myimages.DefaultArt)
 
 		self.vwTrackLabel.set_text("Track Title:", font=self.app.myfonts.fnt30, colornum=0xffffff, flags=RSRC_HALIGN_RIGHT)
 		self.vwTrackValue.set_text(track.getTitle(), font=self.app.myfonts.fnt30, colornum=0xffffff, flags=RSRC_HALIGN_LEFT)
@@ -300,6 +303,7 @@ class NowPlaying:
 					# we are done with the playlist
 					self.playingSong = None
 					self.deactivate()
+					self.app.setScreenSaverArt(None)
 					self.hide()
 					return
 				

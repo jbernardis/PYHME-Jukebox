@@ -2,9 +2,10 @@ from hme import *
 import os
 from time import asctime, time
 import thread
+import random
 
 import Config
-from Config import ( screenWidth, screenHeight, titleYPos, subTitleYPos, messageYPos )
+from Config import ( screenWidth, screenHeight, titleYPos, subTitleYPos, messageYPos, artWidth, artHeight )
 from SongDB import SongDB
 from DBObjects import  PlayList, ITER_MODE_ALBUM, ITER_MODE_SONG
 from MenuMgr import MenuMgr, Menu
@@ -14,7 +15,7 @@ from NowPlaying import NowPlaying
 from SetPrefs import SetPrefs
 
 TITLE = 'JukeBox'
-VERSION = '0.1'
+VERSION = '1.0a'
 
 MODE_MAIN_MENU = 0
 MODE_PLAYLIST = 10
@@ -54,6 +55,8 @@ CHOICE_ARTIST_PLAYLIST = 16
 
 PLM_DONE = 1
 TIMER = 999
+
+TICKER_INTERVAL = 30
 
 mainMenu = Menu([
 			["Now Playing", CHOICE_NOWPLAYING, False, 'Press ENTER to save "Now Playing" as a playlist'],
@@ -121,6 +124,12 @@ class Images:
 		self.DefaultArt    = self.loadimage(app, 'defaultalbumart')
 		self.FldBkg        = self.loadimage(app, 'fieldbkg')
 		self.FldBkgHi      = self.loadimage(app, 'fieldbkghi')
+		fn = os.path.join(AppPath, "icon.png")
+		if os.path.exists(fn):
+			self.Icon = Image(app, fn)
+		else:
+			print "Icon file missing for jukebox"
+			self.Icon = None
 	
 	def loadimage(self, app, name):
 		skin = app.opts['skin']
@@ -169,7 +178,7 @@ class Jukebox(Application):
 		
 	def ticker(self):
 		while self.active:
-			self.sleep(60)
+			self.sleep(TICKER_INTERVAL)
 			self.send_key(KEY_TIVO, TIMER)
 			
 	def cleanup(self):
@@ -188,7 +197,8 @@ class Jukebox(Application):
 		print "Jukebox thread activating"
 		thread.start_new_thread(self.ticker, ())
 		self.lastKeyTime = time()
-		self.isBlank = False
+		self.confirmExit = False
+		self.isScreenSaverActive = False
 		
 		self.myimages = Images(self)
 		self.myfonts = Fonts(self)
@@ -215,7 +225,7 @@ class Jukebox(Application):
 		
 		self.setPrefs = SetPrefs(self)
 		
-		# Now Playing next to be next to last because it can overlay all other windows except screen saver
+		# Now Playing needs to be next to last because it can overlay all other windows except screen saver
 		self.nowPlaying = NowPlaying(self)
 
 		nSong, nAlbum, nAlbumArtist, nTrackArtist = self.sdb.count()
@@ -233,18 +243,30 @@ class Jukebox(Application):
 		self.currentMenu, self.currentItem = self.mm.Descend(mainMenu)
 		
 		# screen saver needs to be last so it is on top
-		self.vwBlank = View(self, visible=True, transparency=1, colornum=0, parent=self.root)
+		self.vwScreenSaver = View(self, visible=True, transparency=1, colornum=0, parent=self.root)
+		self.vwScreenSaverArt = View(self.app, height=artHeight, width=artWidth, ypos=0, xpos=0, parent=self.vwScreenSaver)
+		self.setScreenSaverArt(None)
 		
-	def blankScreen(self, flag):
+	def setScreenSaverArt(self, art):
+		if art == None:
+			self.vwScreenSaverArt.set_resource(self.myimages.Icon)
+		else:
+			self.vwScreenSaverArt.set_resource(art, flags=RSRC_VALIGN_TOP+RSRC_HALIGN_LEFT)
+		
+	def activateScreenSaver(self, flag):
 		if flag:
-			if self.isBlank: return
-			self.isBlank = True
-			self.vwBlank.set_transparency(0, animation=Animation(self, 0.75))
+			if self.isScreenSaverActive: return
+			self.isScreenSaverActive = True
+			self.vwScreenSaverArt.set_bounds(xpos = 0, ypos = 0)
+			self.ssDirection = 1
+			self.vwScreenSaver.set_transparency(0, animation=Animation(self, 0.75))
+			y = int(random.choice(range(screenHeight-artHeight)))
+			self.vwScreenSaverArt.set_bounds(xpos = (screenWidth - artWidth), ypos = y, animtime = TICKER_INTERVAL)
 			
 		else:
-			if not self.isBlank: return
-			self.isBlank = False
-			self.vwBlank.set_transparency(1, animation=Animation(self, 0.75))
+			if not self.isScreenSaverActive: return
+			self.isScreenSaverActive = False
+			self.vwScreenSaver.set_transparency(1, animation=Animation(self, 0.75))
 			
 
 	def setSubTitle(self, text):
@@ -283,7 +305,20 @@ class Jukebox(Application):
 		if keynum != KEY_TIVO:
 			self.lastKeyTime = time()
 			
+		if keynum != KEY_THUMBSUP and self.confirmExit:
+			self.setMessage('')
+			self.confirmExit = False
+			
 		if keynum == KEY_TIVO and rawcode == TIMER:
+			if self.isScreenSaverActive:
+				y = int(random.choice(range(screenHeight-artHeight)))
+				if self.ssDirection == -1:
+					self.ssDirection = 1
+					self.vwScreenSaverArt.set_bounds(xpos = (screenWidth - artWidth), ypos = y, animtime = TICKER_INTERVAL)
+				else:
+					self.ssDirection = -1
+					self.vwScreenSaverArt.set_bounds(xpos = 0, ypos = y, animtime = TICKER_INTERVAL)
+
 			now = time()
 			idleTime = now - self.lastKeyTime
 			
@@ -292,13 +327,13 @@ class Jukebox(Application):
 					self.nowPlaying.show()
 					
 			if self.opts['screensaver'] != 0 and idleTime > self.opts['screensaver']:
-				if not self.isBlank:
-					self.blankScreen(True)
+				if not self.isScreenSaverActive:
+					self.activateScreenSaver(True)
 				
 			return
 				
-		if keynum != KEY_TIVO and self.isBlank:
-			self.blankScreen(False)
+		if keynum != KEY_TIVO and self.isScreenSaverActive:
+			self.activateScreenSaver(False)
 			return
 			
 		if self.nowPlaying.isShowing():
@@ -319,7 +354,17 @@ class Jukebox(Application):
 				self.mm.RefreshMenu(None)
 				self.sdb.setIterMode(self.iterMode)
 			
-		elif keynum == KEY_LEFT:
+		elif keynum in [ KEY_LEFT, KEY_THUMBSUP ]:
+			if keynum == KEY_LEFT and self.mm.atRoot() and self.nowPlaying.isActive():
+				self.setMessage('Press THUMBS-UP to confirm exit while music is playing')
+				self.sound('alert')
+				self.confirmExit = True
+				return
+			
+			if keynum == KEY_THUMBSUP and not self.confirmExit:
+				self.sound('bonk')
+				return
+			
 			self.currentMenu, self.currentItem = self.mm.Ascend()
 			if self.currentMenu == None:
 				self.active = False

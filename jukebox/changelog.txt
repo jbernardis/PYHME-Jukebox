@@ -1,0 +1,4 @@
+Verion 1.0a - 1/11/2012
+- added safeguard to protect against accidental application exit while music is playing
+- added a better screen saver
+- allowed for support of m3u playlist files

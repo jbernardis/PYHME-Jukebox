@@ -49,7 +49,7 @@ class PlaylistMgr:
 		for name in files:
 			if name.startswith("."): continue
 			fname, fext = os.path.splitext(name)
-			if fext.lower() != ".jpl": continue
+			if not fext.lower() in [".jpl", ".m3u"]: continue
 			
 			pl = PlayList(fname)
 			fn = os.path.join(path, name)
@@ -60,7 +60,7 @@ class PlaylistMgr:
 				
 				so = self.sdb.getSongByFile(l)
 				if not so:
-					print "Playlist %s, not file with filename %s - skipping" % (name, l)
+					print "Playlist %s, no file with filename %s - skipping" % (name, l)
 				else:
 					pl.addSong(so)
 			
@@ -89,6 +89,14 @@ class PlaylistMgr:
 			for s in pl:
 				fp.write("%s\n" % s.getFile())
 			fp.close()
+			
+		# remove corresponding m3u file if it exists
+		fn = os.path.join(os.path.dirname(__file__), "playlists", pl.getName() + ".m3u")
+		
+		try:
+			os.remove(fn)
+		except:
+			pass
 							
 	def buildPLMenu(self):
 		menu = []

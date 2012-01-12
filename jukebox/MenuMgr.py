@@ -139,6 +139,9 @@ class MenuMgr:
 	def RefreshMenu(self, menu):
 		if self.menu == menu or menu == None:
 			self.PopulateMenu(self.listSelection)
+			
+	def atRoot(self):
+		return len(self.stack) == 1
 	
 	def Ascend(self):
 		if len(self.stack) == 0:

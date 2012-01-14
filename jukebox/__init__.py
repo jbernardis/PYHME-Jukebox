@@ -15,7 +15,7 @@ from NowPlaying import NowPlaying
 from SetPrefs import SetPrefs
 
 TITLE = 'JukeBox'
-VERSION = '1.0a'
+VERSION = '1.0b'
 
 MODE_MAIN_MENU = 0
 MODE_PLAYLIST = 10

@@ -28,7 +28,12 @@ def makeASCII(s):
 
 
 def parseMP3(fn):
-	md = MP3(fn)
+	try:
+		md = MP3(fn)
+	except:
+		print "\nMutagen unable to parse: %s   skipping..." % fn
+		return None
+	
 	mdkeys = md.keys()
 	
 	title = UNKNOWN
@@ -112,8 +117,12 @@ for container, root in opts['containers']:
 				elif (fileCount % 100) == 0:
 					print ".",
 					sys.stdout.flush()
+					
+				attr = parseMP3(fn)
+				if attr == None:
+					continue;
 				
-				(title, albumName, trackArtistName, albumArtistName, fn, art, length, genre, track) = parseMP3(fn)
+				(title, albumName, trackArtistName, albumArtistName, fn, art, length, genre, track) = attr
 				artx = None
 				if art:
 					if albumName not in artIndex:

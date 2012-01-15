@@ -5,3 +5,6 @@ Verion 1.0a - 1/11/2012
 
 Version 1.0b - 1/14/2012
 - added a try block around calls to mutagen to skip files that can't be parsed
+
+Version 1.0c - 1/14/2012
+- added try block around PIL logic to protect against bad image data

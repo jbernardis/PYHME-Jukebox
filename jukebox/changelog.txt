@@ -8,3 +8,7 @@ Version 1.0b - 1/14/2012
 
 Version 1.0c - 1/14/2012
 - added try block around PIL logic to protect against bad image data
+
+Version 1.0d - 1/16/2012
+- added a preload option (preloadcache) to load cache at process start time rather than at app start time
+- added a timer (watchcacheinterval) for checking updates to cache file and reloading if necessary

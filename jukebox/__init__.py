@@ -1,11 +1,11 @@
 from hme import *
 import os
-from time import asctime, time
+from time import asctime, time, sleep
 import thread
 import random
 
 import Config
-from Config import ( screenWidth, screenHeight, titleYPos, subTitleYPos, messageYPos, artWidth, artHeight )
+from Config import ( screenWidth, screenHeight, titleYPos, subTitleYPos, messageYPos, artWidth, artHeight, CACHEFILE )
 from SongDB import SongDB
 from DBObjects import  PlayList, ITER_MODE_ALBUM, ITER_MODE_SONG
 from MenuMgr import MenuMgr, Menu
@@ -15,7 +15,7 @@ from NowPlaying import NowPlaying
 from SetPrefs import SetPrefs
 
 TITLE = 'JukeBox'
-VERSION = '1.0c'
+VERSION = '1.0d'
 
 MODE_MAIN_MENU = 0
 MODE_PLAYLIST = 10
@@ -34,6 +34,27 @@ MODE_TRACK_CHOICES = 51
 MODE_PREFS = 90
 
 print asctime(), TITLE + " version " + VERSION + " module initializing"
+config = Config.Config()
+opts = config.load()
+
+sdb = None
+if opts['preloadcache']:
+	sdb = SongDB(CACHEFILE).getDBHandler()
+	cachestamp = os.stat(CACHEFILE).st_mtime
+	
+	def cacheloader(interval):
+		global cachestamp, sdb
+		
+		print "Cache watcher thread starting - watch interval = %d" % interval
+		while True:
+			sleep(interval)
+			newcachestamp = os.stat(CACHEFILE).st_mtime
+			if newcachestamp > cachestamp:
+				print "Changed cache detected - reloading..."
+				sdb = SongDB(CACHEFILE).getDBHandler()
+				cachestamp = newcachestamp
+				
+	thread.start_new_thread(cacheloader, (opts['cachewatchinterval'], ))
 
 AppPath = os.path.dirname(__file__)
 
@@ -172,9 +193,11 @@ class Jukebox(Application):
 
 	def startup(self):
 		print "Jukebox thread entering startup"
-		self.config = Config.Config(self)
-		self.opts = self.config.load()
-		self.sdb = SongDB(self.opts['cachefile']).getDBHandler()
+		self.opts = opts
+		if opts['preloadcache']:
+			self.sdb = sdb
+		else:
+			self.sdb = SongDB(CACHEFILE).getDBHandler()
 		
 	def ticker(self):
 		while self.active:
@@ -220,7 +243,7 @@ class Jukebox(Application):
 		self.detMgr = DetailMgr(self)
 		self.NPPlaylist = PlayList("Now Playing")
 
-		self.plMgr = PlaylistMgr(self, skin=self.opts['skin'])
+		self.plMgr = PlaylistMgr(self, skin=opts['skin'])
 		self.iterMode = ITER_MODE_ALBUM
 		
 		self.setPrefs = SetPrefs(self)
@@ -322,11 +345,11 @@ class Jukebox(Application):
 			now = time()
 			idleTime = now - self.lastKeyTime
 			
-			if self.opts['autoswitchnp'] != 0 and idleTime > self.opts['autoswitchnp']:
+			if opts['autoswitchnp'] != 0 and idleTime > opts['autoswitchnp']:
 				if self.nowPlaying.isActive() and not self.nowPlaying.isShowing():
 					self.nowPlaying.show()
 					
-			if self.opts['screensaver'] != 0 and idleTime > self.opts['screensaver']:
+			if opts['screensaver'] != 0 and idleTime > opts['screensaver']:
 				if not self.isScreenSaverActive:
 					self.activateScreenSaver(True)
 				
@@ -500,8 +523,8 @@ class Jukebox(Application):
 					self.NPPlaylist.addSong(s)
 					
 				self.nowPlaying.Play(self.NPPlaylist,
-									shuffle=self.app.opts['trackshuffle'],
-									loop=self.app.opts['trackloop'])
+									shuffle=opts['trackshuffle'],
+									loop=opts['trackloop'])
 				
 		else:
 			self.sound('bonk')
@@ -562,8 +585,8 @@ class Jukebox(Application):
 					self.NPPlaylist.addSong(s)
 					
 				self.nowPlaying.Play(self.NPPlaylist,
-									shuffle=self.app.opts['albumshuffle'],
-									loop=self.app.opts['albumloop'])
+									shuffle=opts['albumshuffle'],
+									loop=opts['albumloop'])
 			
 		else:
 			self.sound('bonk')
@@ -630,8 +653,8 @@ class Jukebox(Application):
 						self.NPPlaylist.addSong(s)
 						
 					self.nowPlaying.Play(self.NPPlaylist,
-										shuffle=self.app.opts['albumshuffle'],
-										loop=self.app.opts['albumloop'])
+										shuffle=opts['albumshuffle'],
+										loop=opts['albumloop'])
 
 					self.sound('updown')
 
@@ -644,8 +667,8 @@ class Jukebox(Application):
 						self.NPPlaylist.addSong(s)
 						
 					self.nowPlaying.Play(self.NPPlaylist, first=self.currentTrack,
-										shuffle=self.app.opts['albumshuffle'],
-										loop=self.app.opts['albumloop'])
+										shuffle=opts['albumshuffle'],
+										loop=opts['albumloop'])
 
 					self.sound('updown')
 				
@@ -710,8 +733,8 @@ class Jukebox(Application):
 					self.NPPlaylist.addSong(s)
 					
 				self.nowPlaying.Play(self.NPPlaylist,
-										shuffle=self.app.opts['albumshuffle'],
-										loop=self.app.opts['albumloop'])
+										shuffle=opts['albumshuffle'],
+										loop=opts['albumloop'])
 			
 		else:
 			self.sound('bonk')
@@ -779,8 +802,8 @@ class Jukebox(Application):
 						self.NPPlaylist.addSong(s)
 						
 					self.nowPlaying.Play(self.NPPlaylist,
-										shuffle=self.app.opts['albumshuffle'],
-										loop=self.app.opts['albumloop'])
+										shuffle=opts['albumshuffle'],
+										loop=opts['albumloop'])
 
 					self.sound('updown')
 
@@ -793,8 +816,8 @@ class Jukebox(Application):
 						self.NPPlaylist.addSong(s)
 						
 					self.nowPlaying.Play(self.NPPlaylist, first=self.currentTrack,
-										shuffle=self.app.opts['albumshuffle'],
-										loop=self.app.opts['albumloop'])
+										shuffle=opts['albumshuffle'],
+										loop=opts['albumloop'])
 
 					self.sound('updown')
 				
@@ -857,8 +880,8 @@ class Jukebox(Application):
 				for s in self.currentArtist:
 					self.NPPlaylist.addSong(s)
 				self.nowPlaying.Play(self.NPPlaylist,
-										shuffle=self.app.opts['artistshuffle'],
-										loop=self.app.opts['artistloop'])
+										shuffle=opts['artistshuffle'],
+										loop=opts['artistloop'])
 			
 		else:
 			self.sound('bonk')
@@ -921,8 +944,8 @@ class Jukebox(Application):
 					for s in self.currentArtist:
 						self.NPPlaylist.addSong(s)
 					self.nowPlaying.Play(self.NPPlaylist,
-										shuffle=self.app.opts['artistshuffle'],
-										loop=self.app.opts['artistloop'])
+										shuffle=opts['artistshuffle'],
+										loop=opts['artistloop'])
 
 					self.sound('updown')
 
@@ -934,8 +957,8 @@ class Jukebox(Application):
 					for s in self.currentArtist:
 						self.NPPlaylist.addSong(s)
 					self.nowPlaying.Play(self.NPPlaylist, first=self.currentTrack,
-										shuffle=self.app.opts['artistshuffle'],
-										loop=self.app.opts['artistloop'])
+										shuffle=opts['artistshuffle'],
+										loop=opts['artistloop'])
 					self.sound('updown')
 
 			elif value == CHOICE_SONG_PLAYLIST:

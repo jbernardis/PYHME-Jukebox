@@ -26,6 +26,21 @@ serverport = server port
 pytivo = location of pyTivo.conf
 
 #
+# by default jukebox loads the cache up app start.  This works ok for most situations, but if you have an exceptionally
+# large cache it may take so ling that tivo times out.  To solve this, you can set the following option to True topre-load
+# the cache at PROCESS start.  Default value is False.
+
+preloadcache = False
+
+#
+# Accompanying this option (if it is True) you can specify how often to check for a changed cache file (default is 600 seconds).
+# when the cache is pre-loaded at process start, there needs to be a mechanism for reloading it if it changes.  This timer
+# provides that mechanism.  This option has no effect if preloadcache is False.
+# Note that even after an updated cache is loaded, you still need to exit the app and re-enter for it to take effect
+
+cachewatchinterval = 600  
+
+#
 # if there is no input from the remote control, and the menu screens are currently being displayed, AND a
 # now-playing list is active (i.e. music is playing) then jukebox will automatically switch to the now-playing
 # view after a specified number of seconds.  The default value is 120 (2 minutes).  A value of 0 defeats this logic.

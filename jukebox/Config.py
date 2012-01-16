@@ -50,10 +50,10 @@ def parseBoolean(val, defaultVal):
 
 CFGFILENAME = 'jukebox.ini'
 SECTIONNAME = 'jukebox'
+CACHEFILE = os.path.join(AppPath, "jukebox.cache")
 
 class Config:
-	def __init__(self, app):
-		self.app = app
+	def __init__(self):
 		self.fn = os.path.join(os.path.dirname(__file__), CFGFILENAME)
 
 		self.cfg = ConfigParser.ConfigParser()
@@ -64,10 +64,11 @@ class Config:
 	
 		self.opts = {}		
 		self.defaults = {
+			'preloadcache' : False,
+			'cachewatchinterval' : 600,
 			'serverip' : server_host,
 			'serverport': None,
 			'skin' : None,
-			'cachefile': os.path.join(AppPath, "jukebox.cache"),
 			'trackshuffle': False,
 			'trackloop': False,
 			'albumshuffle': False,
@@ -111,6 +112,16 @@ class Config:
 				elif opt == 'pytivo':
 					pytivo = value
 
+				elif opt == 'preloadcache': 
+					self.opts['preloadcache'] = parseBoolean(value, False)
+				
+				elif opt == 'cachewatchinterval': 
+					try:
+						self.opts['cachewatchinterval'] = int(value)
+					except:
+						print "Invalid cache watch interval (%s) - defaulting to 600" % value
+						self.opts['cachewatchinterval'] = 600
+					
 				elif opt == 'trackshuffle': 
 					self.opts['trackshuffle'] = parseBoolean(value, False)
 					
@@ -139,12 +150,14 @@ class Config:
 					try:
 						self.opts['autoswitchnp'] = int(value)
 					except:
+						print "Invalid auto switch now playing value (%s) - defaulting to 120" % value
 						self.opts['autoswitchnp'] = 120
 					
 				elif opt == 'screensaver': 
 					try:
 						self.opts['screensaver'] = int(value)
 					except:
+						print "Invalid screen saver timeout (%s) - defaulting to 600" % value
 						self.opts['screensaver'] = 600
 					
 				else:
@@ -158,7 +171,7 @@ class Config:
 		
 		self.loadPyTivoConfig(pytivo)
 		
-		if self.opts['serverport'] == None and self.app:
+		if self.opts['serverport'] == None and not BuildingCache:
 			raise ConfigError("Error - server port missing in config file")
 		
 		if len(self.opts['containers']) == 0:

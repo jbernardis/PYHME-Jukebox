@@ -12,7 +12,7 @@ import marshal
 
 import Config
 from AlbumArt import resizeArt
-from Config import artWidth, artHeight
+from Config import artWidth, artHeight, CACHEFILE
 from DBObjects import SongGraph, Song
 
 UNKNOWN = "<unknown>"
@@ -82,8 +82,8 @@ def parseMP3(fn):
 # Start of main routine
 #
 print asctime(), "starting cache build from MP3 files"
-config = Config.Config(None)
-opts = config.load()
+config = Config.Config()
+opts = config.load(BuildingCache=True)
 
 songList = []
 artIndex = {}
@@ -153,7 +153,7 @@ sdb.sortAll()
 print asctime(), "Saving cache to disk"
 
 try:
-	f = open(opts['cachefile'], 'wb')
+	f = open(CACHEFILE, 'wb')
 except:
 	print "Error opening cache file for write"
 else:

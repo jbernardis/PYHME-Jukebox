@@ -20,6 +20,9 @@ detailValueWidth = 500
 artWidth = 320
 artHeight = 320
 
+lyricHeight = 600
+lyricWidth = 1160
+
 npArtX = 860
 npArtY = 100
 npItemHeight = 40
@@ -79,6 +82,7 @@ class Config:
 			'artistloop': False,
 			'autoswitchnp': 120,
 			'screensaver': 600,
+			'lyricindent': -1,
 				}
 
 	def getConfigParser(self):
@@ -159,6 +163,13 @@ class Config:
 					except:
 						print "Invalid screen saver timeout (%s) - defaulting to 600" % value
 						self.opts['screensaver'] = 600
+					
+				elif opt == 'lyricindent': 
+					try:
+						self.opts['lyricindent'] = int(value)
+					except:
+						print "Invalid lyric indent value (%s) - must be > -1 - defaulting to -1" % value
+						self.opts['lyricindent'] = -1
 					
 				else:
 					print "Ignoring invalid option (%s) in ini file", opt

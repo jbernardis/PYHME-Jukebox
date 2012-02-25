@@ -152,3 +152,21 @@ These time periods can be changed via options in the jukebox.ini file.
 Note: these time periods are not exact.  Jukebox only checks once every minute for these conditions.  Thus is could be up
 to 1 full minute beyond these conditions occurring before the action takes place.
 
+
+LYRICS SCREEN
+======================================================================================
+While on the Now Playing screen, or while browsing music if you are focused on a single song, you can try
+to retrieve lyrics my pressing the INFO button.  The lyrics window pops up over the normal display.  If there are multiple
+pages to the lyrics, there will be paging cues on the top and bottom of the screen.  Channel UP/DOWN and UP/DOWN can be
+used to navigate the screens.  CLEAR, LEFT, or INFO will dismiss the pop-up.
+
+Jukebox tries its best to retrieve lyrics from azlyrics.com.  If it is unable to retrieve, you will see a message to that
+effect.  This does not mean you are out of options, however.  Before retrieving from the web site, jukebox looks for a
+file with the same name as the mp3 file, in the same directory, but with an extension of .lyr instead of .mp3.  If it finds
+such a file, it will display its contents; otherwise, it will look up the song on azlyrics.com.   One other feature - if
+you press the thumbs-up button while lyrics are displayed, the current set of lyrics will be written to the properly
+named .lyr file.  This allows you to make changes and/or corrections to the lyrics, and saves the need to retrieve in the future.
+It also allows you to retrieve lyrics through some other mechanism and then have access to them in jukebox.
+
+Display of the lyrics is somewhat controlled by a configuration option: lyricindent.  If omitted, or if set to -1, lyrics
+will be centered.  Otherwise, lyrics will be left justified against this indent value.

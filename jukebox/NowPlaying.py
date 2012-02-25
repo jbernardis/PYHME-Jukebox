@@ -56,9 +56,12 @@ class NowPlaying:
 		y += npItemHeight + 10
 		self.vwArtistLabel = View(self.app, height=npItemHeight, width=npLabelWidth, ypos=y, xpos=npInfoX, parent=self.root)
 		self.vwArtistValue = View(self.app, height=npItemHeight, width=npValueWidth, ypos=y, xpos=xv, parent=self.root)
-		y += npItemHeight + 10
-		self.vwNextLabel = View(self.app, height=npItemHeight, width=npLabelWidth, ypos=y, xpos=npInfoX, parent=self.root)
-		self.vwNextValue = View(self.app, height=npItemHeight, width=npValueWidth, ypos=y, xpos=xv, parent=self.root)
+		
+		y = npArtY + artHeight + 20
+		x = npInfoX + 200
+		self.vwNextLabel = View(self.app, height=npItemHeight, width=npLabelWidth, ypos=y, xpos=x, parent=self.root)
+		x+=npLabelWidth+10
+		self.vwNextValue = View(self.app, height=npItemHeight, width=npValueWidth, ypos=y, xpos=x, parent=self.root)
 
 		w = npLabelWidth * 2
 		self.vwCounter = View(self.app, height=2*npItemHeight, width=w, ypos=npCounterY, xpos=npInfoX, parent=self.root)
@@ -217,11 +220,11 @@ class NowPlaying:
 		if self.next:
 			nextAlbum = self.next.getAlbum()
 			s = "%s / %s" % (nextAlbum.getArtistName(), self.next.getTitle())
-			self.vwNextLabel.set_text("Next:", font=self.app.myfonts.fnt30, colornum=0xffffff, flags=RSRC_HALIGN_RIGHT)
-			self.vwNextValue.set_text(s, font=self.app.myfonts.fnt30, colornum=0xffffff, flags=RSRC_HALIGN_LEFT)
+			self.vwNextLabel.set_text("Next:", font=self.app.myfonts.fnt20, colornum=0xffffff, flags=RSRC_HALIGN_RIGHT)
+			self.vwNextValue.set_text(s, font=self.app.myfonts.fnt20, colornum=0xffffff, flags=RSRC_HALIGN_LEFT)
 		else:
-			self.vwNextLabel.set_text("", font=self.app.myfonts.fnt30, colornum=0xffffff, flags=RSRC_HALIGN_RIGHT)
-			self.vwNextValue.set_text("", font=self.app.myfonts.fnt30, colornum=0xffffff, flags=RSRC_HALIGN_LEFT)
+			self.vwNextLabel.set_text("")
+			self.vwNextValue.set_text("")
 			
 		def onOrOff(flag):
 			if flag:
@@ -410,4 +413,17 @@ class NowPlaying:
 			self.NPStream.set_speed(self.speed)
 			self.app.sound(self.sounds[self.speedindex])
 			self.vwMotion.set_resource(self.images[self.speedindex])
+			
+		elif keynum == KEY_INFO:
+			if self.playingSong == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.playingSong)
+				self.app.sound('updown')
+				
+		elif keynum in [ KEY_VOLUMEUP, KEY_VOLUMEDOWN, KEY_MUTE ]:
+			pass
+				
+		else:
+			self.app.sound('bonk')
 

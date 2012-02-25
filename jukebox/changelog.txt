@@ -12,3 +12,7 @@ Version 1.0c - 1/14/2012
 Version 1.0d - 1/16/2012
 - added a preload option (preloadcache) to load cache at process start time rather than at app start time
 - added a timer (watchcacheinterval) for checking updates to cache file and reloading if necessary
+
+Version 1.0e - 2/24/2012
+- added the ability to retrieve lyrics from azlyrics.com or from a local file
+- fixed so I no longer destroy the cache if it was pre-loaded

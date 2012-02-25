@@ -12,10 +12,11 @@ from MenuMgr import MenuMgr, Menu
 from DetailMgr import DetailMgr
 from PlaylistMgr import PlaylistMgr
 from NowPlaying import NowPlaying
+from LyricView import LyricView
 from SetPrefs import SetPrefs
 
 TITLE = 'JukeBox'
-VERSION = '1.0d'
+VERSION = '1.0e'
 
 MODE_MAIN_MENU = 0
 MODE_PLAYLIST = 10
@@ -118,6 +119,9 @@ class Images:
 	def __init__(self, app):
 		self.Background    = self.loadimage(app, 'background')
 		self.NPBackground  = self.loadimage(app, 'npbackground')
+		self.LyricBG       = self.loadimage(app, 'lyricbackground')
+		self.LyricUp       = self.loadimage(app, 'lyricup')
+		self.LyricDown     = self.loadimage(app, 'lyricdown')
 		self.CueUp         = self.loadimage(app, 'cueup')
 		self.CueDown       = self.loadimage(app, 'cuedown')
 		self.CueLeft       = self.loadimage(app, 'cueleft')
@@ -205,8 +209,10 @@ class Jukebox(Application):
 			self.send_key(KEY_TIVO, TIMER)
 			
 	def cleanup(self):
-		self.sdb.release()
-		self.sdb = None
+		if not self.opts['preloadcache']:
+			self.sdb.release()
+			self.sdb = None
+			
 		if self.nowPlaying.isActive():
 			self.nowPlaying.cleanup()
 			
@@ -248,8 +254,9 @@ class Jukebox(Application):
 		
 		self.setPrefs = SetPrefs(self)
 		
-		# Now Playing needs to be next to last because it can overlay all other windows except screen saver
 		self.nowPlaying = NowPlaying(self)
+		
+		self.lyricView = LyricView(self)
 
 		nSong, nAlbum, nAlbumArtist, nTrackArtist = self.sdb.count()
 		mainMenu.setCount(CHOICE_ALBUM_ARTIST, nAlbumArtist)		
@@ -323,6 +330,9 @@ class Jukebox(Application):
 				self.NPPlaylist.addSong(s)
 		
 		self.nowPlaying.addToNowPlaying(album=album, artist=artist, song=song, playlist=playlist)
+		
+	def showLyrics(self, song):
+		self.lyricView.loadLyrics(song)
 			
 	def handle_key_press(self, keynum, rawcode):
 		if keynum != KEY_TIVO:
@@ -358,8 +368,11 @@ class Jukebox(Application):
 		if keynum != KEY_TIVO and self.isScreenSaverActive:
 			self.activateScreenSaver(False)
 			return
+		
+		if self.lyricView.isShowing():
+			self.lyricView.handle_key_press(keynum, rawcode)
 			
-		if self.nowPlaying.isShowing():
+		elif self.nowPlaying.isShowing():
 			self.nowPlaying.handle_key_press(keynum, rawcode)
 			
 		elif self.plMgr.isActive():
@@ -606,6 +619,14 @@ class Jukebox(Application):
 				self.currentMenu, self.currentItem = self.mm.Descend(albumTrackMenu, offset=8)
 				self.sound('updown')
 			
+		elif keynum == KEY_INFO:
+			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
+			if self.currentTrack == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.currentTrack)
+				self.app.sound('updown')
+				
 		elif keynum == KEY_PLAY:
 			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
 			if self.currentTrack == None:
@@ -692,6 +713,14 @@ class Jukebox(Application):
 					self.plMgr.activate(done = PLM_DONE, album = self.currentAlbum)
 					self.sound('updown')
 					
+					
+		elif keynum == KEY_INFO:
+			if self.currentTrack == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.currentTrack)
+				self.app.sound('updown')
+				
 		else:
 			self.sound('bonk')
 					
@@ -764,7 +793,15 @@ class Jukebox(Application):
 				self.nowPlaying.Play(self.NPPlaylist)
 
 				self.sound('updown')
-			
+					
+		elif keynum == KEY_INFO:
+			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
+			if self.currentTrack == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.currentTrack)
+				self.app.sound('updown')
+
 		elif keynum == KEY_ENTER:
 			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
 			self.currentArtist = self.currentTrack.getArtist()
@@ -841,6 +878,13 @@ class Jukebox(Application):
 					self.setSubTitle(t)	
 					self.plMgr.activate(done = PLM_DONE, album = self.currentAlbum)
 					self.sound('updown')
+			
+		elif keynum == KEY_INFO:
+			if self.currentTrack == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.currentTrack)
+				self.app.sound('updown')
 
 		else:
 			self.sound('bonk')
@@ -909,6 +953,14 @@ class Jukebox(Application):
 				self.NPPlaylist.clear()
 				self.NPPlaylist.addSong(self.currentTrack)
 				self.nowPlaying.Play(self.NPPlaylist)
+			
+		elif keynum == KEY_INFO:
+			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
+			if self.currentTrack == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.currentTrack)
+				self.app.sound('updown')
 
 		elif keynum == KEY_ENTER:
 			if self.currentArtist == None or self.currentTrack == None:
@@ -980,6 +1032,13 @@ class Jukebox(Application):
 					self.setSubTitle(t)	
 					self.plMgr.activate(done = PLM_DONE, artist = self.currentArtist)
 					self.sound('updown')
+			
+		elif keynum == KEY_INFO:
+			if self.currentTrack == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.currentTrack)
+				self.app.sound('updown')
 					
 		else:
 			self.sound('bonk')
@@ -1000,6 +1059,7 @@ class Jukebox(Application):
 				self.sound('updown')
 				
 		elif keynum in [KEY_ENTER]:
+			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
 			if self.currentTrack == None:
 				self.sound('bonk')
 			else:
@@ -1009,6 +1069,14 @@ class Jukebox(Application):
 				self.setSubTitle(t)	
 				self.plMgr.activate(done = PLM_DONE, song = self.currentTrack)
 				self.sound('updown')
+			
+		elif keynum == KEY_INFO:
+			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
+			if self.currentTrack == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.currentTrack)
+				self.app.sound('updown')
 			
 		elif keynum == KEY_PLAY:
 			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
@@ -1064,6 +1132,13 @@ class Jukebox(Application):
 					self.setSubTitle(t)	
 					self.plMgr.activate(done = PLM_DONE, album = self.currentAlbum)
 					self.sound('updown')
+
+		elif keynum == KEY_INFO:
+			if self.currentTrack == None:
+				self.app.sound('bonk')
+			else:
+				self.app.showLyrics(self.currentTrack)
+				self.app.sound('updown')
 					
 		else:
 			self.sound('bonk')

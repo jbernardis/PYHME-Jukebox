@@ -16,3 +16,6 @@ Version 1.0d - 1/16/2012
 Version 1.0e - 2/24/2012
 - added the ability to retrieve lyrics from azlyrics.com or from a local file
 - fixed so I no longer destroy the cache if it was pre-loaded
+
+Version 1.0f - 2/28/2012
+- fixed the inability to play songs whose file name started with a period

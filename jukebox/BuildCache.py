@@ -103,7 +103,6 @@ for container, root in opts['containers']:
 		if rpath.startswith(os.path.sep): rpath = rpath[1:]
 		
 		for name in files:
-			if name.startswith("."): continue
 			if os.path.splitext(name)[1].lower() in ['.mp3']:
 				fileCount += 1
 

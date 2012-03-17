@@ -48,6 +48,13 @@ cachewatchinterval = 600
 
 autoswitchnp = 120
 
+#
+# specify whether or not idle events from pyhme should be ignored.  Setting this to True will cause jukebox to never
+# timeout even if there is no remote control activity.  Jukebox will NEVER timeout while music is playing.  Default is False
+#
+
+ignoreidle = False
+
 # specify the indentation level of the lyrics page.  If this value is -1 (default) lyrics are centered.  Otherwise
 # lyrics are left justified against this indent value
 

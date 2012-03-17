@@ -16,7 +16,7 @@ from LyricView import LyricView
 from SetPrefs import SetPrefs
 
 TITLE = 'JukeBox'
-VERSION = '1.0f'
+VERSION = '1.0g'
 
 MODE_MAIN_MENU = 0
 MODE_PLAYLIST = 10
@@ -198,6 +198,7 @@ class Jukebox(Application):
 	def startup(self):
 		print "Jukebox thread entering startup"
 		self.opts = opts
+		self.idleCount = 0
 		if opts['preloadcache']:
 			self.sdb = sdb
 		else:
@@ -217,15 +218,21 @@ class Jukebox(Application):
 			self.nowPlaying.cleanup()
 			
 	def handle_idle(self, flag):
-		if self.nowPlaying.isActive():
+		if self.nowPlaying.isActive() or self.opts['ignoreidle']:
+			self.idleCount = 0
 			return True
 		else:
-			return False;
+			self.idleCount += 1
+			if self.idleCount >= 2:
+				return False
+			else:
+				return True
 		
 	def handle_active(self):
 		print "Jukebox thread activating"
 		thread.start_new_thread(self.ticker, ())
 		self.lastKeyTime = time()
+		self.idleCount = 0
 		self.confirmExit = False
 		self.isScreenSaverActive = False
 		

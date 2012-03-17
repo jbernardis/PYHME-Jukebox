@@ -83,6 +83,7 @@ class Config:
 			'autoswitchnp': 120,
 			'screensaver': 600,
 			'lyricindent': -1,
+			'ignoreidle' : False,
 				}
 
 	def getConfigParser(self):
@@ -128,6 +129,9 @@ class Config:
 					
 				elif opt == 'trackshuffle': 
 					self.opts['trackshuffle'] = parseBoolean(value, False)
+					
+				elif opt == 'ignoreidle': 
+					self.opts['ignoreidle'] = parseBoolean(value, False)
 					
 				elif opt == 'trackloop': 
 					self.opts['trackloop'] = parseBoolean(value, False)

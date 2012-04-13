@@ -81,9 +81,9 @@ class LyricsParser(HTMLParser):
 		if not self.gatherLyrics:
 			return
 		if self.lyrics == None:
-			self.lyrics = makeASCII(data).strip() + "\n"
+			self.lyrics = data.strip() + "\n"
 		else:
-			self.lyrics += makeASCII(data).strip() + "\n"
+			self.lyrics += data.strip() + "\n"
 			
 def trivialWord(word):
 	w = word.lower()

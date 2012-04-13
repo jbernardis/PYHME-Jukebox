@@ -17,16 +17,6 @@ from DBObjects import SongGraph, Song
 
 UNKNOWN = "<unknown>"
 
-def makeASCII(s):
-	result = ""
-	for i in range(len(s)):
-		if ord(s[i]) < 128:
-			result += s[i]
-		else:
-			result += '?'
-	return result
-
-
 def parseMP3(fn):
 	try:
 		md = MP3(fn)
@@ -38,19 +28,19 @@ def parseMP3(fn):
 	
 	title = UNKNOWN
 	if 'TIT2' in mdkeys:
-		title = makeASCII(str(md['TIT2']))
+		title = unicode(md['TIT2'])
 		
 	albumName = UNKNOWN
 	if 'TALB' in mdkeys:
-		albumName = makeASCII(str(md['TALB']))
+		albumName = unicode(md['TALB'])
 		
 	albumArtistName = UNKNOWN
 	if 'TPE2' in mdkeys:
-		albumArtistName = makeASCII(str(md['TPE2']))
+		albumArtistName = unicode(md['TPE2'])
 		
 	trackArtistName = albumArtistName
 	if 'TPE1' in mdkeys:
-		trackArtistName = makeASCII(str(md['TPE1']))
+		trackArtistName = unicode(md['TPE1'])
 
 	if albumArtistName == UNKNOWN:
 		albumArtistName = trackArtistName
@@ -60,7 +50,7 @@ def parseMP3(fn):
 		
 	genre = "<unknown>"
 	if 'TCON' in mdkeys:
-		genre = makeASCII(str(md['TCON']))
+		genre = unicode(md['TCON'])
 		
 	track = 0
 	if 'TRCK' in mdkeys:

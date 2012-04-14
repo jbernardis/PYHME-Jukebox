@@ -60,7 +60,7 @@ def makeASCII(s):
 	for i in range(len(s)):
 		if ord(s[i]) < 128:
 			result += s[i]
-	return result
+	return str(result)
 
 class LyricsParser(HTMLParser):
 	def __init__(self):

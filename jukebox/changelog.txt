@@ -25,3 +25,6 @@ Version 1.0g - 3/17/2012
 
 Verson 1.0h - 4/12/2012
 - added support for unicode encoded metadata
+
+Version 1.0i - 4/14/2012
+- Fixed a bug in lyrcis retrieval that was introduced when unicode support was added

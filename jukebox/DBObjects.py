@@ -4,6 +4,8 @@ Created on Nov 18, 2011
 @author: jbernard
 '''
 
+ignoreArticles = False
+
 def cmpSongs(a, b):
 	ta = a.getTitle()
 	tb = b.getTitle()
@@ -27,6 +29,30 @@ def cmpAlbums(a, b):
 	
 	ta = a.getArtistName()
 	tb = b.getArtistName()
+	return cmp(ta, tb)
+
+def stripArticle(string):
+	if not ignoreArticles:
+		return string
+	
+	lstring = string.lower()
+	result = string
+	
+	for article in [ 'the ', 'an ', 'a ']:
+		if lstring.startswith(article):
+			result = string[len(article):].lstrip()
+			break
+		
+	return result
+
+def cmpArtists(a, b):
+	ta = stripArticle(a.getArtistName())
+	tb = stripArticle(b.getArtistName())
+	return cmp(ta, tb)
+	
+def cmpArtistAlbums(a, b):
+	ta = a.getAlbumName()
+	tb = b.getAlbumName()
 	return cmp(ta, tb)
 
 def cmpTracks(a, b):
@@ -178,6 +204,13 @@ class Album:
 		
 		return self.songs[x].getTitle()
 	
+	def getFirstSortChar(self, x):
+		r = self.getMenuItem(x)
+		if r == None:
+			return None
+		
+		return r[0]
+	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
 			return None
@@ -212,7 +245,7 @@ class Artist:
 		
 	def getArtistName(self):
 		return self.artistName
-		
+	
 	def addAlbum(self, album):
 		self.albumList.append(album)
 		self.nAlbums += 1
@@ -238,10 +271,6 @@ class Artist:
 		self.nSongs += 1
 		
 	def sortAll(self):
-		def cmpArtistAlbums(a, b):
-			ta = a.getAlbumName()
-			tb = b.getAlbumName()
-			return cmp(ta, tb)
 		
 		s = sorted(self.songList, cmpSongs)
 		self.songList = s
@@ -273,6 +302,13 @@ class Artist:
 			return "%s (%d)" % (self.albumList[x].getAlbumName(), len(self.albumList[x]))
 		else:
 			return self.songList[x].getTitle()
+			
+	def getFirstSortChar(self, x):
+		r = self.getMenuItem(x)
+		if r == None:
+			return None
+		
+		return r[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -364,6 +400,13 @@ class AlbumList:
 		album = self.albumList[x]
 		albumName = album.getAlbumName()
 		return "%s (%d)" % (albumName, len(album))
+		
+	def getFirstSortChar(self, x):
+		r = self.getMenuItem(x)
+		if r == None:
+			return None
+		
+		return r[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -403,11 +446,6 @@ class ArtistList:
 		self.nArtists += 1
 		
 	def sortAll(self):
-		def cmpArtists(a, b):
-			ta = a.getArtistName()
-			tb = b.getArtistName()
-			return cmp(ta, tb)
-		
 		s = sorted(self.artistList, cmpArtists)
 		self.artistList = s
 		for artist in self.artistList:
@@ -429,6 +467,13 @@ class ArtistList:
 		if x < 0 or x >= self.__len__():
 			return None
 		return "%s (%d)" % (self.artistList[x].getArtistName(), len(self.artistList[x]))
+		
+	def getFirstSortChar(self, x):
+		r = self.getMenuItem(x)
+		if r == None:
+			return None
+		
+		return stripArticle(r)[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -490,6 +535,13 @@ class PlayList:
 			return None
 		s = self.songList[x]
 		return "%s / %s" % (s.getArtist().getArtistName(), s.getTitle())
+		
+	def getFirstSortChar(self, x):
+		r = self.getMenuItem(x)
+		if r == None:
+			return None
+		
+		return r[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -517,7 +569,11 @@ class PlayList:
 		raise StopIteration
 				
 class SongGraph:
-	def __init__(self):		
+	def __init__(self, opts):
+		global ignoreArticles
+		if 'ignorearticles' in opts:
+			ignoreArticles = opts['ignorearticles']		
+			
 		self.songList = []
 		self.nSongs = 0
 		self.albumList = AlbumList()
@@ -631,6 +687,13 @@ class SongGraph:
 		if x < 0 or x >= self.__len__():
 			return None
 		return self.songList[x].getTitle()
+		
+	def getFirstSortChar(self, x):
+		r = self.getMenuItem(x)
+		if r == None:
+			return None
+		
+		return r[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():

@@ -2,7 +2,10 @@ from hme import *
 
 from Config import ( screenWidth, menuYStart, menuItemCount, menuItemHeight )
 
-menuNavKeys = [KEY_UP, KEY_DOWN, KEY_CHANNELUP, KEY_CHANNELDOWN, KEY_REPLAY, KEY_ADVANCE, KEY_FORWARD, KEY_REVERSE ]
+menuNavKeys = [KEY_UP, KEY_DOWN, KEY_CHANNELUP, KEY_CHANNELDOWN, KEY_REPLAY, KEY_ADVANCE, KEY_FORWARD, KEY_REVERSE, KEY_NUM0 ]
+
+keymap = { KEY_NUM1: 10.0, KEY_NUM2: 20.0, KEY_NUM3: 30.0, KEY_NUM4: 40.0, KEY_NUM5: 50.0,
+		KEY_NUM6: 60.0, KEY_NUM7: 70.0, KEY_NUM8: 80.0, KEY_NUM9: 90.0 }
 
 class Menu:
 	def __init__(self, items):
@@ -190,7 +193,7 @@ class MenuMgr:
 
 
 	def isNavKey(self, keynum, rawcode):
-		return keynum in menuNavKeys
+		return keynum in menuNavKeys or keynum in keymap
 	
 	def Navigate(self, keynum, rawcode):
 		oldSelection = self.listSelection
@@ -217,7 +220,7 @@ class MenuMgr:
 			self.listSelection = 0
 			self.listOffset = 0
 			
-		elif keynum in [ KEY_ADVANCE ]:
+		elif keynum in [ KEY_ADVANCE, KEY_NUM0 ]:
 			if self.listSelection == len(self.menu) - 1:
 				self.listSelection = 0
 				self.listOffset = 0
@@ -231,11 +234,11 @@ class MenuMgr:
 			if self.listSelection >= len(self.menu)-1:
 				snd = 'bonk'
 			else:
-				curChar = self.menu.getMenuItem(self.listSelection)[0]
+				curChar = self.menu.getFirstSortChar(self.listSelection)
 				
 				i = self.listSelection+1
 				while(i < len(self.menu)):
-					if curChar != self.menu.getMenuItem(i)[0]:
+					if curChar != self.menu.getFirstSortChar(i):
 						break
 					i += 1
 	
@@ -256,11 +259,11 @@ class MenuMgr:
 				snd = 'bonk'
 			else:
 				i = self.listSelection-1
-				prevChar = self.menu.getMenuItem(i)[0]
+				prevChar = self.menu.getFirstSortChar(i)
 				
 				i -= 1
 				while(i >= 0):
-					if prevChar != self.menu.getMenuItem(i)[0]:
+					if prevChar != self.menu.getFirstSortChar(i):
 						i += 1
 						break
 					i -= 1
@@ -272,7 +275,12 @@ class MenuMgr:
 					self.listSelection = i
 					if i < self.listOffset:
 						self.listOffset = i
-		
+						
+		elif keynum in keymap:
+			pct = keymap[keynum]
+			self.listOffset = int(pct * len(self.menu) / 100.0)
+			self.listSelection = self.listOffset
+	
 		if self.listOffset == oldOffset:
 			# screen is still the same - just maybe a different hilite line
 			if self.listSelection != oldSelection:

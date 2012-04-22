@@ -105,8 +105,10 @@ play it.
 
 While browsing through the various track/album/artist lists, you can use the normal up/down/page up/page down
 to do your navigation.  Also, fast forward moves forward until a new first character is
-found (i.e. from the 'A' titles to the 'B' titles).  rewind does the same backwards.  Any other possible actions
-are shown on the bottom of the screen.  In general, play will start playing the current
+found (i.e. from the 'A' titles to the 'B' titles).  rewind does the same backwards.  The numeric keys can also be used for
+navigation on any menu.  1 takes you to a point 10% of the way through the menu, 2 - 20% and so on.  0 alternates between the
+end of the list and the beginning of the list.
+Any other possible actions are shown on the bottom of the screen.  In general, play will start playing the current
 song/album/artist, and enter will add it to a playlist.  There may be other choices depending on the context;
 these are shown on screen.   
 

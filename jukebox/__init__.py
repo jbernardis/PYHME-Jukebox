@@ -16,7 +16,7 @@ from LyricView import LyricView
 from SetPrefs import SetPrefs
 
 TITLE = 'JukeBox'
-VERSION = '1.0i'
+VERSION = '1.0j'
 
 MODE_MAIN_MENU = 0
 MODE_PLAYLIST = 10
@@ -40,7 +40,7 @@ opts = config.load()
 
 sdb = None
 if opts['preloadcache']:
-	sdb = SongDB(CACHEFILE).getDBHandler()
+	sdb = SongDB(CACHEFILE, opts).getDBHandler()
 	cachestamp = os.stat(CACHEFILE).st_mtime
 	
 	def cacheloader(interval):
@@ -52,7 +52,7 @@ if opts['preloadcache']:
 			newcachestamp = os.stat(CACHEFILE).st_mtime
 			if newcachestamp > cachestamp:
 				print "Changed cache detected - reloading..."
-				sdb = SongDB(CACHEFILE).getDBHandler()
+				sdb = SongDB(CACHEFILE, opts).getDBHandler()
 				cachestamp = newcachestamp
 				
 	thread.start_new_thread(cacheloader, (opts['cachewatchinterval'], ))
@@ -202,7 +202,7 @@ class Jukebox(Application):
 		if opts['preloadcache']:
 			self.sdb = sdb
 		else:
-			self.sdb = SongDB(CACHEFILE).getDBHandler()
+			self.sdb = SongDB(CACHEFILE, opts).getDBHandler()
 		
 	def ticker(self):
 		while self.active:
@@ -1156,9 +1156,12 @@ class Jukebox(Application):
 			
 		elif self.menuMode in [ MODE_ALBUM, MODE_ALBUM_ARTIST_ALBUM ]:
 			self.currentAlbum = self.currentMenu.getMenuValue(self.currentItem)
+			self.currentArtist = self.currentAlbum.getArtist()
 			
 		elif self.menuMode in [ MODE_ALBUM_ARTIST_ALBUM_TRACK, MODE_ALBUM_TRACK, MODE_TRACK_ARTIST_TRACK, MODE_TRACK ]:
 			self.currentTrack = self.currentMenu.getMenuValue(self.currentItem)
+			self.currentAlbum = self.currentTrack.getAlbum()
+			self.currentArtist = self.currentTrack.getArtist()
 			
 	def showDetails(self):
 		if self.plMgr.isActive():

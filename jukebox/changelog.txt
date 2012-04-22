@@ -27,4 +27,9 @@ Verson 1.0h - 4/12/2012
 - added support for unicode encoded metadata
 
 Version 1.0i - 4/14/2012
-- Fixed a bug in lyrcis retrieval that was introduced when unicode support was added
+- Fixed a bug in lyrics retrieval that was introduced when unicode support was added
+
+Version 1.0j - 4/21/2012
+- Added support for using number keys to navigate through long menus (1=10%, 2=20%, etc)
+- Added the ability to ignore leading articles (a, an, the) in artist names so that "The Beatles" sorts with the B's
+- added ignorearticles ini file option to control above stripping of articles

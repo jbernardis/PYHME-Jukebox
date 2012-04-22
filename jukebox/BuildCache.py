@@ -80,7 +80,7 @@ artIndex = {}
 artList = []
 ax = 0
 
-sdb = SongGraph()
+sdb = SongGraph(opts)
 totalFileCount = 0
 
 for container, root in opts['containers']:

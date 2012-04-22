@@ -55,6 +55,12 @@ autoswitchnp = 120
 
 ignoreidle = False
 
+#
+# specify whether or not leading articles in artist names (e.g. the, a, an) will be ignored when sorting.  Default is False
+#
+
+ignorearticles = False
+
 # specify the indentation level of the lyrics page.  If this value is -1 (default) lyrics are centered.  Otherwise
 # lyrics are left justified against this indent value
 

@@ -84,6 +84,7 @@ class Config:
 			'screensaver': 600,
 			'lyricindent': -1,
 			'ignoreidle' : False,
+			'ignorearticles' : False,
 				}
 
 	def getConfigParser(self):
@@ -132,6 +133,9 @@ class Config:
 					
 				elif opt == 'ignoreidle': 
 					self.opts['ignoreidle'] = parseBoolean(value, False)
+					
+				elif opt == 'ignorearticles': 
+					self.opts['ignorearticles'] = parseBoolean(value, False)
 					
 				elif opt == 'trackloop': 
 					self.opts['trackloop'] = parseBoolean(value, False)

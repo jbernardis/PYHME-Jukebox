@@ -12,7 +12,7 @@ import marshal
 from DBObjects import SongGraph, Song
 
 class SongDB:
-	def __init__(self, cachefile):
+	def __init__(self, cachefile, opts):
 		self.cacheFileName = cachefile
 		
 		print asctime(), "Starting cache file load"
@@ -32,7 +32,7 @@ class SongDB:
 			print "Error loading cache"
 			self.sdb = None
 		
-		self.sdb = SongGraph()
+		self.sdb = SongGraph(opts)
 		for s in songList:
 			(title, albumName, trackArtistName, albumArtistName, fn, artx, length, genre, track) = s
 			if artx:

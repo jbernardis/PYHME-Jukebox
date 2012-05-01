@@ -1,8 +1,6 @@
 import os
 import urllib
 from urllib import FancyURLopener
-import string
-from string import maketrans
 from HTMLParser import HTMLParser
 
 class MyOpener(FancyURLopener):
@@ -16,9 +14,6 @@ else:
 	quote = lambda x: urllib.quote(x.replace(os.path.sep, '/'))
 	unquote = lambda x: os.path.normpath(urllib.unquote_plus(x))
 
-# a translation table to remove punctioation from artist and song names
-transTable = maketrans(string.punctuation, " " * len(string.punctuation))
-	
 class FindSongParser(HTMLParser):
 	def __init__(self):
 		HTMLParser.__init__(self)
@@ -54,6 +49,13 @@ class FindSongParser(HTMLParser):
 		if data.lower().count('search done') != 0:
 			self.lookingForTable = True
 
+
+def stripPunct(s):
+	result = ""
+	for i in range(len(s)):
+		if s[i] not in [ ',', '.', '?', '!' ]:
+			result += s[i]
+	return result
 
 def makeASCII(s):
 	result = ""
@@ -114,18 +116,34 @@ def scoreURL(url, lArtist,lTitle):
 			
 	return float(score)/float(potential)
 
-def GetLyrics(artist, title, verbose=False, html=False):
-
+def GetLyricsAttempt(artist, title, verbose=False, html=False):
 	myopener = MyOpener()
 			
-	lArtist = makeASCII(artist).lower().translate(transTable).split()
-	lTitle = makeASCII(title).lower().translate(transTable).split()
+	try:
+		lArtist = artist.lower().encode('utf8').split()
+	except:
+		lArtist = makeASCII(artist).lower().split()
+
+	try:		
+		lTitle = title.lower().encode('utf8').split()
+	except:
+		lTitle = makeASCII(title).lower().split()
+		
 	if verbose: 
 		print "Translated artist: ", lArtist
 		print "Translated title: ", lTitle
 	
-	params = urllib.urlencode({'q': '+'.join(lArtist+lTitle)})
-	url = 'http://search.azlyrics.com/search.php?%s' % params
+	p = ""
+	for a in lArtist:
+		p += '+' + quote(a)
+	for t in lTitle:
+		p += '+' + quote(t)
+		
+	if p == "":
+		return None
+	
+	p = 'q=' + p[1:]
+	url = 'http://search.azlyrics.com/search.php?%s' % p
 	if verbose: 
 		print "Starting URL: (%s)" % url
 
@@ -180,7 +198,20 @@ def GetLyrics(artist, title, verbose=False, html=False):
 				if nlyrics:
 					if verbose: 
 						print "got some lyrics - setting new max to %f" % s
-					lyrics = nlyrics
+						
+					try:
+						if verbose:
+							print "Attempting decode as utf8"
+						lyrics = nlyrics.decode('utf8')
+					except:
+						if verbose:
+							print "Didn't work - try as iso8859-1"
+						try:
+							lyrics = nlyrics.decode('iso8859-1')
+						except:
+							print "didn't work - falling back to good old strip non-ascii"
+							lyrics = makeASCII(nlyrics)
+							
 					maxScore = s
 				else:
 					if verbose:
@@ -189,4 +220,14 @@ def GetLyrics(artist, title, verbose=False, html=False):
 						if not html:
 							print "lyric html = (%s)" % lhtml
 
+	return lyrics
+
+def GetLyrics(artist, title):
+	lyrics = GetLyricsAttempt(artist, title)
+	
+	if lyrics == None:
+		nartist = stripPunct(artist)
+		ntitle = stripPunct(title)
+		lyrics = GetLyricsAttempt(nartist, ntitle)
+		
 	return lyrics

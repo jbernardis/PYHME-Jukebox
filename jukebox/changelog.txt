@@ -33,3 +33,6 @@ Version 1.0j - 4/21/2012
 - Added support for using number keys to navigate through long menus (1=10%, 2=20%, etc)
 - Added the ability to ignore leading articles (a, an, the) in artist names so that "The Beatles" sorts with the B's
 - added ignorearticles ini file option to control above stripping of articles
+
+Version 1.0k - 5/1/2012
+- made lyrics retrieval more robust, solved some issues where lyrics weren't being retrieved

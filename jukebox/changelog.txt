@@ -36,3 +36,6 @@ Version 1.0j - 4/21/2012
 
 Version 1.0k - 5/1/2012
 - made lyrics retrieval more robust, solved some issues where lyrics weren't being retrieved
+
+Version 1.0l - 5/15/2012
+- added alphabetical sorting of playlists - also introduced new icon

@@ -13,6 +13,11 @@ PLE_DONE = 3
 
 DEL_CONFIRM_MESSAGE = "Press CLEAR again to confirm deletion"
 
+def cmpPlayLists(a, b):
+	ta = a.getName()
+	tb = b.getName()
+	return cmp(ta, tb)
+
 class PlaylistError(Exception):
 	pass
 
@@ -65,6 +70,12 @@ class PlaylistMgr:
 					pl.addSong(so)
 			
 			self.playlists.append(pl)
+		
+		self.sortPlayLists()
+			
+	def sortPlayLists(self):
+		s = sorted(self.playlists, cmpPlayLists)
+		self.playlists = s
 			
 	def delPlaylistFile(self, name):
 		path = os.path.join(os.path.dirname(__file__), "playlists", name + ".jpl")
@@ -193,6 +204,7 @@ class PlaylistMgr:
 				if s != "":
 					pl = PlayList(s)
 					self.playlists.append(pl)
+					self.sortPlayLists()
 					self.buildPLMenu()
 					self.app.mm.ReplaceMenu(self.menu)
 				#self.app.sound('updown')
@@ -207,7 +219,7 @@ class PlaylistMgr:
 				if self.chosenPlaylist:
 					self.savePlaylist(self.chosenPlaylist)
 				self.app.setSubTitle("Choose Playlist")
-				self.app.sound('updown')
+				#self.app.sound('updown')
 				
 		elif keynum == KEY_LEFT:
 			self.app.mm.Ascend()

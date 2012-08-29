@@ -39,3 +39,14 @@ Version 1.0k - 5/1/2012
 
 Version 1.0l - 5/15/2012
 - added alphabetical sorting of playlists - also introduced new icon
+
+Version 1.0m - 5/22/2012
+- added support for alpha keys when browsing lists - 'a' takes you to the first 'a' title, etc.  New option 'swapkeycase' (default True)
+  determines whether keycase is swapped when browsing making it unnecessary to hold the shift key if your titles normally start with uppercase
+  
+Version 1.1 = 8/29/2012
+- extended skipping articles above to ALL titles - songs, albums, and artists
+- added an option to ignore letter case when sorting and searching
+- added virtual DJ to allow selection of random playlists based on artist an/or genre
+- suppress sound effects during music playback
+- added support for the slider remote control - letters can be used when searching through the menu structure

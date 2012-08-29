@@ -85,6 +85,7 @@ class Config:
 			'lyricindent': -1,
 			'ignoreidle' : False,
 			'ignorearticles' : False,
+			'ignorecase' : True,
 				}
 
 	def getConfigParser(self):
@@ -136,6 +137,9 @@ class Config:
 					
 				elif opt == 'ignorearticles': 
 					self.opts['ignorearticles'] = parseBoolean(value, False)
+					
+				elif opt == 'ignorecase': 
+					self.opts['ignorecase'] = parseBoolean(value, True)
 					
 				elif opt == 'trackloop': 
 					self.opts['trackloop'] = parseBoolean(value, False)

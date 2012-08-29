@@ -56,7 +56,7 @@ autoswitchnp = 120
 ignoreidle = False
 
 #
-# specify whether or not leading articles in artist names (e.g. the, a, an) will be ignored when sorting.  Default is False
+# specify whether or not leading articles in any names (e.g. the, a, an) will be ignored when sorting.  Default is False
 #
 
 ignorearticles = False
@@ -78,6 +78,13 @@ screensaver = 600
 # A note on both of these timers: jukebox only checks for these conditions once every minute.  This means that the
 # actual time until screen blanking or switching could be up to 1 minute from the time you specify
 #
+
+#
+# cause upper and lower case letters to be sorted (and searched for) together so that, for example, all artists beginning with
+# 'b' will have the same sort priority as those beginning with 'B'.  This also causes keys on the slider remote to all be considered
+# as one case so it is unnecessary to shift to search
+
+ignorecase = True
 
 # 
 # all of the png files that make up the on-screen image of jukebox are contained in a subdirectory named "skins".  If you

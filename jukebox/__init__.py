@@ -14,9 +14,9 @@ from PlaylistMgr import PlaylistMgr
 from NowPlaying import NowPlaying
 from LyricView import LyricView
 from SetPrefs import SetPrefs
-
+from DJ import DJ
 TITLE = 'JukeBox'
-VERSION = '1.0l'
+VERSION = '1.1'
 
 MODE_MAIN_MENU = 0
 MODE_PLAYLIST = 10
@@ -33,6 +33,8 @@ MODE_TRACK_ARTIST_TRACK_CHOICES = 42
 MODE_TRACK = 50
 MODE_TRACK_CHOICES = 51
 MODE_PREFS = 90
+
+ignoreKeys = [ 71, 72, 73, 74, 75, KEY_VOLUMEUP, KEY_VOLUMEDOWN, KEY_MUTE ]
 
 print asctime(), TITLE + " version " + VERSION + " module initializing"
 config = Config.Config()
@@ -66,6 +68,7 @@ CHOICE_ALBUM = 5
 CHOICE_TRACK_ARTIST = 6
 CHOICE_TRACK = 7
 CHOICE_PREFS = 8
+CHOICE_DJ = 17
 CHOICE_PLAY_TRACK = 9
 CHOICE_PLAY_ALBUM = 10
 CHOICE_PLAY_ALBUM_TRACK = 11
@@ -76,6 +79,7 @@ CHOICE_ALBUM_PLAYLIST = 15
 CHOICE_ARTIST_PLAYLIST = 16
 
 PLM_DONE = 1
+DJ_DONE = 2
 TIMER = 999
 
 TICKER_INTERVAL = 30
@@ -87,7 +91,8 @@ mainMenu = Menu([
 			["Browse Albums", CHOICE_ALBUM, True, ""],
 			["Browse Track Artists", CHOICE_TRACK_ARTIST, True, ""],
 			["Browse Tracks", CHOICE_TRACK, True, "Press PLAY to play all tracks"],
-			["Set Preferences", CHOICE_PREFS, True, ""]
+			["Virtual DJ", CHOICE_DJ, True, ""],
+			["Set Preferences", CHOICE_PREFS, True, ""],
 			])
 
 albumTrackMenu = Menu([
@@ -149,6 +154,7 @@ class Images:
 		self.DefaultArt    = self.loadimage(app, 'defaultalbumart')
 		self.FldBkg        = self.loadimage(app, 'fieldbkg')
 		self.FldBkgHi      = self.loadimage(app, 'fieldbkghi')
+		self.MsgBox        = self.loadimage(app, 'msgbox')
 		fn = os.path.join(AppPath, "icon.png")
 		if os.path.exists(fn):
 			self.Icon = Image(app, fn)
@@ -209,6 +215,10 @@ class Jukebox(Application):
 			self.sleep(TICKER_INTERVAL)
 			self.send_key(KEY_TIVO, TIMER)
 			
+	def sound(self, id=None):
+		if not self.nowPlaying.isPlaying():
+			Application.sound(self, id)
+			
 	def cleanup(self):
 		if not self.opts['preloadcache']:
 			self.sdb.release()
@@ -235,6 +245,7 @@ class Jukebox(Application):
 		self.idleCount = 0
 		self.confirmExit = False
 		self.isScreenSaverActive = False
+		self.msgbox = None
 		
 		self.myimages = Images(self)
 		self.myfonts = Fonts(self)
@@ -259,11 +270,13 @@ class Jukebox(Application):
 		self.plMgr = PlaylistMgr(self, skin=opts['skin'])
 		self.iterMode = ITER_MODE_ALBUM
 		
-		self.setPrefs = SetPrefs(self)
+		self.setPrefs = SetPrefs(self, config)
 		
 		self.nowPlaying = NowPlaying(self)
 		
 		self.lyricView = LyricView(self)
+
+		self.DJ = DJ(self, opts)
 
 		nSong, nAlbum, nAlbumArtist, nTrackArtist = self.sdb.count()
 		mainMenu.setCount(CHOICE_ALBUM_ARTIST, nAlbumArtist)		
@@ -281,30 +294,68 @@ class Jukebox(Application):
 		
 		# screen saver needs to be last so it is on top
 		self.vwScreenSaver = View(self, visible=True, transparency=1, colornum=0, parent=self.root)
-		self.vwScreenSaverArt = View(self.app, height=artHeight, width=artWidth, ypos=0, xpos=0, parent=self.vwScreenSaver)
+		self.vwScreenSaverArt1 = View(self.app, height=artHeight, width=artWidth, ypos=0, xpos=0, parent=self.vwScreenSaver)
+		self.vwScreenSaverArt1.set_transparency(1)
+		self.vwScreenSaverArt2 = View(self.app, height=artHeight, width=artWidth, ypos=0, xpos=0, parent=self.vwScreenSaver)
+		self.vwScreenSaverArt2.set_transparency(1)
+		self.ssActiveFrame = 1
+		self.vwScreenSaverText = View(self.app, height=40, width=screenWidth, ypos=screenHeight/2, xpos=0, parent=self.vwScreenSaver)
+		self.vwScreenSaverText.set_transparency(1)
 		self.setScreenSaverArt(None)
 		
-	def setScreenSaverArt(self, art):
+	def setScreenSaverArt(self, art, track=None, album=None):
 		if art == None:
-			self.vwScreenSaverArt.set_resource(self.myimages.Icon)
+			art = self.myimages.Icon
 		else:
-			self.vwScreenSaverArt.set_resource(art, flags=RSRC_VALIGN_TOP+RSRC_HALIGN_LEFT)
+			text = ""
+			if track != None:
+				text += track.getTitle()
+				
+			if album:
+				text += " / " + album.getAlbumName() + " / " + album.getArtistName()
+				
+			self.vwScreenSaverText.set_text(text, font=self.myfonts.fnt30, colornum=0xffffff)
+			self.vwScreenSaverText.set_transparency(0)
+			self.vwScreenSaverText.set_transparency(1, animation=Animation(self, 8.0))
+			
+		if self.ssActiveFrame == 1:
+			self.vwScreenSaverArt2.set_resource(art, flags=RSRC_VALIGN_TOP+RSRC_HALIGN_LEFT)
+			self.vwScreenSaverArt2.set_transparency(0, animation=Animation(self, 2.0))
+			self.vwScreenSaverArt1.set_transparency(1, animation=Animation(self, 2.0))
+			self.ssActiveFrame = 2
+		else:
+			self.vwScreenSaverArt1.set_resource(art, flags=RSRC_VALIGN_TOP+RSRC_HALIGN_LEFT)
+			self.vwScreenSaverArt1.set_transparency(0, animation=Animation(self, 2.0))
+			self.vwScreenSaverArt2.set_transparency(1, animation=Animation(self, 2.0))
+			self.ssActiveFrame = 1
 		
 	def activateScreenSaver(self, flag):
 		if flag:
 			if self.isScreenSaverActive: return
 			self.isScreenSaverActive = True
-			self.vwScreenSaverArt.set_bounds(xpos = 0, ypos = 0)
+			self.vwScreenSaverArt1.set_bounds(xpos = 0, ypos = 0)
+			self.vwScreenSaverArt2.set_bounds(xpos = 0, ypos = 0)
 			self.ssDirection = 1
 			self.vwScreenSaver.set_transparency(0, animation=Animation(self, 0.75))
 			y = int(random.choice(range(screenHeight-artHeight)))
-			self.vwScreenSaverArt.set_bounds(xpos = (screenWidth - artWidth), ypos = y, animtime = TICKER_INTERVAL)
+			self.vwScreenSaverArt1.set_bounds(xpos = (screenWidth - artWidth), ypos = y, animtime = TICKER_INTERVAL)
+			self.vwScreenSaverArt2.set_bounds(xpos = (screenWidth - artWidth), ypos = y, animtime = TICKER_INTERVAL)
 			
 		else:
 			if not self.isScreenSaverActive: return
 			self.isScreenSaverActive = False
 			self.vwScreenSaver.set_transparency(1, animation=Animation(self, 0.75))
-			
+
+	def screenSaverSwitch(self):
+		y = int(random.choice(range(screenHeight-artHeight)))
+		if self.ssDirection == -1:
+			self.ssDirection = 1
+			self.vwScreenSaverArt1.set_bounds(xpos = (screenWidth - artWidth), ypos = y, animtime = TICKER_INTERVAL)
+			self.vwScreenSaverArt2.set_bounds(xpos = (screenWidth - artWidth), ypos = y, animtime = TICKER_INTERVAL)
+		else:
+			self.ssDirection = -1
+			self.vwScreenSaverArt1.set_bounds(xpos = 0, ypos = y, animtime = TICKER_INTERVAL)
+			self.vwScreenSaverArt2.set_bounds(xpos = 0, ypos = y, animtime = TICKER_INTERVAL)
 
 	def setSubTitle(self, text):
 		self.SubTitleView.set_text(text, font=self.myfonts.fnt20, colornum=0xffffff, flags=RSRC_VALIGN_BOTTOM)
@@ -342,6 +393,9 @@ class Jukebox(Application):
 		self.lyricView.loadLyrics(song)
 			
 	def handle_key_press(self, keynum, rawcode):
+		if keynum in ignoreKeys:
+			return
+		
 		if keynum != KEY_TIVO:
 			self.lastKeyTime = time()
 			
@@ -351,13 +405,7 @@ class Jukebox(Application):
 			
 		if keynum == KEY_TIVO and rawcode == TIMER:
 			if self.isScreenSaverActive:
-				y = int(random.choice(range(screenHeight-artHeight)))
-				if self.ssDirection == -1:
-					self.ssDirection = 1
-					self.vwScreenSaverArt.set_bounds(xpos = (screenWidth - artWidth), ypos = y, animtime = TICKER_INTERVAL)
-				else:
-					self.ssDirection = -1
-					self.vwScreenSaverArt.set_bounds(xpos = 0, ypos = y, animtime = TICKER_INTERVAL)
+				self.screenSaverSwitch()
 
 			now = time()
 			idleTime = now - self.lastKeyTime
@@ -376,7 +424,13 @@ class Jukebox(Application):
 			self.activateScreenSaver(False)
 			return
 		
-		if self.lyricView.isShowing():
+		if self.msgbox:
+			self.msgbox.handle_key_press(keynum, rawcode)
+		
+		elif keynum == KEY_TIVO and self.DJ.isActive():
+			self.DJ.handle_key_press(keynum, rawcode)
+			
+		elif self.lyricView.isShowing():
 			self.lyricView.handle_key_press(keynum, rawcode)
 			
 		elif self.nowPlaying.isShowing():
@@ -384,6 +438,9 @@ class Jukebox(Application):
 			
 		elif self.plMgr.isActive():
 			self.plMgr.handle_key_press(keynum, rawcode)
+		
+		elif self.DJ.isActive():
+			self.DJ.handle_key_press(keynum, rawcode)
 		
 		elif self.setPrefs.isActive():
 			self.setPrefs.handle_key_press(keynum, rawcode)
@@ -393,6 +450,10 @@ class Jukebox(Application):
 			
 		elif keynum == KEY_TIVO:
 			if rawcode == PLM_DONE:
+				self.setSubTitle(self.menuTitle)
+				self.mm.RefreshMenu(None)
+				self.sdb.setIterMode(self.iterMode)
+			elif rawcode == DJ_DONE:
 				self.setSubTitle(self.menuTitle)
 				self.mm.RefreshMenu(None)
 				self.sdb.setIterMode(self.iterMode)
@@ -513,6 +574,9 @@ class Jukebox(Application):
 				
 			elif value == CHOICE_PREFS:
 				self.setPrefs.show()
+			
+			elif value == CHOICE_DJ:
+				self.DJ.show(done = DJ_DONE)
 			
 			elif value == CHOICE_NOWPLAYING:
 				if self.nowPlaying.isActive():

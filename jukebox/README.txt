@@ -94,9 +94,11 @@ you can either play them, add them to a playlist, add their artist to a playlist
 album.  At the main menu level, you can choose to play your entire collection.  For an individual song, you can either play
 it, add it to a playlist, add its artist to a playlist, or add its album to a playlist.
 
-6) Set Preferences allows you to set your preferences for shuffle and loop for albums, artists, tracks, and playlists.
+6) Virtual DJ allows you to create random playlists by specifying artists and/or genre that are to be included and/or excluded
 
-If music is currently playing, a 7th menu item will be presented: Now Playing.  You can either switch back to the Now Playing
+7) Set Preferences allows you to set your preferences for shuffle and loop for albums, artists, tracks, and playlists.
+
+If music is currently playing, an 8th menu item will be presented: Now Playing.  You can either switch back to the Now Playing
 screen, or save the Now Playing list as a normal playlist.  Note that other than adding to the now playing list, you cannot
 really edit it.  This was a simplifying decision I made, and I don't think it too onerous.  If you really want to make
 changes to the Now Playing list, save it as a normal playlist and then edit that.  Once you make your edits, you can then
@@ -107,7 +109,8 @@ While browsing through the various track/album/artist lists, you can use the nor
 to do your navigation.  Also, fast forward moves forward until a new first character is
 found (i.e. from the 'A' titles to the 'B' titles).  rewind does the same backwards.  The numeric keys can also be used for
 navigation on any menu.  1 takes you to a point 10% of the way through the menu, 2 - 20% and so on.  0 alternates between the
-end of the list and the beginning of the list.
+end of the list and the beginning of the list.  If you have a slide remote, teh keyboard can be used to move directly to artists etc
+that begin with that letter.  (Digits still work as above)
 Any other possible actions are shown on the bottom of the screen.  In general, play will start playing the current
 song/album/artist, and enter will add it to a playlist.  There may be other choices depending on the context;
 these are shown on screen.   

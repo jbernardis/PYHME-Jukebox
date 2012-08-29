@@ -111,7 +111,13 @@ class NowPlaying:
 	def isActive(self):
 		return self.active
 	
+	def isPlaying(self):
+		return (self.active and (not self.paused))
+	
 	def Play(self, pl, shuffle=False, repeat=False, loop=False, first=None):
+		if len(pl) == 0:
+			return
+		
 		self.originalPlaylist = pl
 			
 		self.shuffle = shuffle
@@ -126,15 +132,16 @@ class NowPlaying:
 		self.show()
 	
 	def buildPlayList(self, first=None):
-		def cmpShuffle(a, b):
-			return random.choice([-1, 1])
+		def cmpRandom(a, b):
+			return cmp(a.randkey, b.randkey)
 	
 		self.playlist = []
 		for s in self.originalPlaylist:
+			s.randkey = random.randint(0, 10000)
 			self.playlist.append(s)
 			
 		if self.shuffle:
-			s = sorted(self.playlist, cmpShuffle)
+			s = sorted(self.playlist, cmpRandom)
 			self.playlist = s
 
 		self.index = 0
@@ -147,7 +154,14 @@ class NowPlaying:
 		
 	def PlaySong(self):
 		self.cleanup()
-			
+		
+		if self.index >= len(self.playlist):
+			self.playingSong = None
+			self.deactivate()
+			self.app.setScreenSaverArt(None)
+			self.hide()
+			return
+		
 		self.playingSong = self.playlist[self.index]
 		# zero out time display
 		# create the stream resource
@@ -184,10 +198,10 @@ class NowPlaying:
 		if art:
 			img = Image(self.app, data=art)
 			self.vwAlbumArt.set_resource(img, flags=RSRC_VALIGN_TOP+RSRC_HALIGN_LEFT)
-			self.app.setScreenSaverArt(img)
+			self.app.setScreenSaverArt(img, track=track, album=album)
 		else:
 			self.vwAlbumArt.set_resource(self.app.myimages.DefaultArt)
-			self.app.setScreenSaverArt(self.app.myimages.DefaultArt)
+			self.app.setScreenSaverArt(self.app.myimages.DefaultArt, track=track, album=album)
 
 		self.vwTrackLabel.set_text("Track Title:", font=self.app.myfonts.fnt30, colornum=0xffffff, flags=RSRC_HALIGN_RIGHT)
 		self.vwTrackValue.set_text(track.getTitle(), font=self.app.myfonts.fnt30, colornum=0xffffff, flags=RSRC_HALIGN_LEFT)

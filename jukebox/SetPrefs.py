@@ -22,8 +22,9 @@ keys = [
 	'trackshuffle' , 'trackloop' ]
 
 class SetPrefs:
-	def __init__(self, app):
+	def __init__(self, app, cfg):
 		self.app = app
+		self.cfg = cfg
 		self.root = View(self.app, visible=False, parent = self.app.root)
 		self.root.set_resource(self.app.myimages.Background)
 		
@@ -164,7 +165,7 @@ class SetPrefs:
 				for i in range(len(xPos)):
 					self.app.opts[keys[i]] = self.lOpts[keys[i]]
 					
-				self.app.config.save(self.app.opts)
+				self.cfg.save(self.app.opts)
 				self.app.sound('alert')
 				self.hide()
 				

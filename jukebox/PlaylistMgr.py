@@ -251,7 +251,7 @@ class PlaylistMgr:
 					
 				if self.playlistToAdd:
 					for s in self.playlistToAdd:
-						self.chosenPlaylist.addSong(s)
+						self.app.addToNowPlaying(song = s)
 					self.playlistToAdd = None
 					changes = True
 					

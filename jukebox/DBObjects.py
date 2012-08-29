@@ -5,37 +5,16 @@ Created on Nov 18, 2011
 '''
 
 ignoreArticles = False
+ignoreCase = True
 
-def cmpSongs(a, b):
-	ta = a.getTitle()
-	tb = b.getTitle()
-	if ta != tb:
-		return cmp(ta, tb)
-	
-	ta = a.getArtistName()
-	tb = b.getArtistName()
-	if ta != tb:
-		return cmp(ta, tb)
-	
-	ta = a.getAlbumName()
-	tb = b.getAlbumName()
-	return cmp(ta, tb)
+def process(string):
+	lstring = string.lower()
+	if ignoreCase:
+		string = lstring
 
-def cmpAlbums(a, b):
-	ta = a.getAlbumName()
-	tb = b.getAlbumName()
-	if ta != tb:
-		return cmp(ta, tb)
-	
-	ta = a.getArtistName()
-	tb = b.getArtistName()
-	return cmp(ta, tb)
-
-def stripArticle(string):
 	if not ignoreArticles:
 		return string
 	
-	lstring = string.lower()
 	result = string
 	
 	for article in [ 'the ', 'an ', 'a ']:
@@ -45,14 +24,39 @@ def stripArticle(string):
 		
 	return result
 
+def cmpSongs(a, b):
+	ta = process(a.getTitle())
+	tb = process(b.getTitle())
+	if ta != tb:
+		return cmp(ta, tb)
+	
+	ta = process(a.getArtistName())
+	tb = process(b.getArtistName())
+	if ta != tb:
+		return cmp(ta, tb)
+	
+	ta = process(a.getAlbumName())
+	tb = process(b.getAlbumName())
+	return cmp(ta, tb)
+
+def cmpAlbums(a, b):
+	ta = process(a.getAlbumName())
+	tb = process(b.getAlbumName())
+	if ta != tb:
+		return cmp(ta, tb)
+	
+	ta = process(a.getArtistName())
+	tb = process(b.getArtistName())
+	return cmp(ta, tb)
+
 def cmpArtists(a, b):
-	ta = stripArticle(a.getArtistName())
-	tb = stripArticle(b.getArtistName())
+	ta = process(a.getArtistName())
+	tb = process(b.getArtistName())
 	return cmp(ta, tb)
 	
 def cmpArtistAlbums(a, b):
-	ta = a.getAlbumName()
-	tb = b.getAlbumName()
+	ta = process(a.getAlbumName())
+	tb = process(b.getAlbumName())
 	return cmp(ta, tb)
 
 def cmpTracks(a, b):
@@ -61,8 +65,8 @@ def cmpTracks(a, b):
 	if ta != tb:
 		return cmp(ta, tb)
 	
-	ta = a.getTitle()
-	tb = b.getTitle()
+	ta = process(a.getTitle())
+	tb = process(b.getTitle())
 	return cmp(ta, tb)
 
 ITER_MODE_SONG = 0
@@ -103,6 +107,9 @@ class Song:
 		
 	def getAlbum(self):
 		return self.album
+	
+	def getGenre(self):
+		return self.genre
 	
 	def setArtist(self, artist):
 		self.artist = artist
@@ -209,7 +216,7 @@ class Album:
 		if r == None:
 			return None
 		
-		return r[0]
+		return process(r)[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -308,7 +315,7 @@ class Artist:
 		if r == None:
 			return None
 		
-		return r[0]
+		return process(r)[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -406,7 +413,7 @@ class AlbumList:
 		if r == None:
 			return None
 		
-		return r[0]
+		return process(r)[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -473,7 +480,7 @@ class ArtistList:
 		if r == None:
 			return None
 		
-		return stripArticle(r)[0]
+		return process(r)[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -541,7 +548,7 @@ class PlayList:
 		if r == None:
 			return None
 		
-		return r[0]
+		return process(r)[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():
@@ -570,9 +577,11 @@ class PlayList:
 				
 class SongGraph:
 	def __init__(self, opts):
-		global ignoreArticles
+		global ignoreArticles, ignoreCase
 		if 'ignorearticles' in opts:
 			ignoreArticles = opts['ignorearticles']		
+		if 'ignorecase' in opts:
+			ignoreCase = opts['ignorecase']		
 			
 		self.songList = []
 		self.nSongs = 0
@@ -693,7 +702,7 @@ class SongGraph:
 		if r == None:
 			return None
 		
-		return r[0]
+		return process(r)[0]
 	
 	def getMenuValue(self, x):
 		if x < 0 or x >= self.__len__():

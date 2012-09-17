@@ -17,7 +17,7 @@ from DBObjects import SongGraph, Song
 
 UNKNOWN = "<unknown>"
 
-def parseMP3(fn):
+def parseMP3(fn, path, opts):
 	try:
 		md = MP3(fn)
 	except:
@@ -65,6 +65,25 @@ def parseMP3(fn):
 		apic = md['APIC:']
 		art = str(apic.data)
 
+	if opts['usefolderart']:
+		foundArtWork = False
+		for n in opts['folderartfiles']:		
+			artf = os.path.join(path, n)
+			if os.path.exists(artf):
+				try:
+					f = open(artf, 'rb')
+					newArt = f.read()
+					f.close()
+					foundArtWork = True
+				except:
+					foundArtWork = False
+					
+				if foundArtWork:
+					break
+			
+		if foundArtWork:
+			art = newArt
+
 	return (title, albumName, trackArtistName, albumArtistName, fn, art, int(md.info.length), genre, track)
 
 ######################################################################################################
@@ -75,6 +94,7 @@ print asctime(), "starting cache build from MP3 files"
 config = Config.Config()
 opts = config.load(BuildingCache=True)
 
+exit(0)
 songList = []
 artIndex = {}
 artList = []
@@ -107,7 +127,7 @@ for container, root in opts['containers']:
 					print ".",
 					sys.stdout.flush()
 					
-				attr = parseMP3(fn)
+				attr = parseMP3(fn, path, opts)
 				if attr == None:
 					continue;
 				

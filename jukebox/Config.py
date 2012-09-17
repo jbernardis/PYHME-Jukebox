@@ -86,6 +86,8 @@ class Config:
 			'ignoreidle' : False,
 			'ignorearticles' : False,
 			'ignorecase' : True,
+			'usefolderart' : False,
+			'folderartfiles' : [ "folder.jpg" ],
 				}
 
 	def getConfigParser(self):
@@ -131,6 +133,12 @@ class Config:
 					
 				elif opt == 'trackshuffle': 
 					self.opts['trackshuffle'] = parseBoolean(value, False)
+					
+				elif opt == 'usefolderart': 
+					self.opts['usefolderart'] = parseBoolean(value, False)
+					
+				elif opt == 'folderartfiles': 
+					self.opts['folderartfiles'] = [x.strip() for x in value.split(',')]
 					
 				elif opt == 'ignoreidle': 
 					self.opts['ignoreidle'] = parseBoolean(value, False)

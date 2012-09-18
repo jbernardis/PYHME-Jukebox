@@ -94,7 +94,6 @@ print asctime(), "starting cache build from MP3 files"
 config = Config.Config()
 opts = config.load(BuildingCache=True)
 
-exit(0)
 songList = []
 artIndex = {}
 artList = []

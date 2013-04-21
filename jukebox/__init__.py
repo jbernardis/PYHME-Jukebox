@@ -16,7 +16,7 @@ from LyricView import LyricView
 from SetPrefs import SetPrefs
 from DJ import DJ
 TITLE = 'JukeBox'
-VERSION = '1.1a'
+VERSION = '1.1b'
 
 MODE_MAIN_MENU = 0
 MODE_PLAYLIST = 10

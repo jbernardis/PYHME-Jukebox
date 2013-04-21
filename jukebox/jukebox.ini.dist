@@ -26,6 +26,12 @@ serverport = server port
 pytivo = location of pyTivo.conf
 
 #
+# you can specify the directory where you store your playlists.  By default, this is a subdirectory named 'playlists'
+# below the directory where the jukebox program files are kept.  
+#
+playlistdir = full path of directory in which playlists are stored
+
+#
 # by default jukebox loads the cache up app start.  This works ok for most situations, but if you have an exceptionally
 # large cache it may take so long that tivo times out.  To solve this, you can set the following option to True to pre-load
 # the cache at PROCESS start.  Default value is False.
@@ -67,10 +73,10 @@ ignorearticles = False
 lyricindent = -1
 
 # album artwork normally comes from within the mp3 files themselves.  If the following option is set to True (default is False)
-# the logic will look for an image file in the mp3 directory and use it instead.  The image file may be of the names in
+# the logic will look for an image file in the mp3 directory and use it instead.  The image file may be any of the names in
 # the "folderartfiles" option
 
-usefolderimage = False
+usefolderart = False
 
 # comma separated list of the possible file names for folder art.  The default is [ "folder.jpg" ]
 

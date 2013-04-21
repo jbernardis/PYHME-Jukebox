@@ -87,6 +87,7 @@ class Config:
 			'ignorearticles' : False,
 			'ignorecase' : True,
 			'usefolderart' : False,
+			'playlistdir' : os.path.join(os.path.dirname(__file__), "playlists"),
 			'folderartfiles' : [ "folder.jpg" ],
 				}
 
@@ -111,6 +112,9 @@ class Config:
 	
 				elif opt == 'serverport':
 					self.opts['serverport'] = value
+	
+				elif opt == 'playlistdir':
+					self.opts['playlistdir'] = value
 	
 				elif opt == 'skin':
 					if value == "" or value.lower() == "none":
@@ -192,7 +196,7 @@ class Config:
 						self.opts['lyricindent'] = -1
 					
 				else:
-					print "Ignoring invalid option (%s) in ini file", opt
+					print "Ignoring invalid option (%s) in ini file" % opt
 					
 		else:
 			raise ConfigError("[jukebox] section missing in config file")

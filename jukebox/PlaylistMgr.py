@@ -24,6 +24,8 @@ class PlaylistError(Exception):
 class PlaylistMgr:
 	def __init__(self, app, done=1, skin=None):
 		self.app = app
+		self.playlistdir = self.app.opts['playlistdir']
+		print "Playlistdir = %s" % self.playlistdir
 		self.sdb = app.sdb
 		self.plmDone = done
 		self.kbd = Keyboard(app, done=KBD_DONE, cancel=KBD_CANCEL, skin=skin)
@@ -42,22 +44,47 @@ class PlaylistMgr:
 		self.ple = PLEdit(app)
 		
 	def loadPlaylists(self):
-		path = os.path.join(os.path.dirname(__file__), "playlists")
-		if not os.path.isdir(path):
-			print "Creating playlists directory"
-			os.mkdir(path)
+		if not os.path.isdir(self.playlistdir):
+			print "Creating playlists directory: %s" % self.playlistdir
+			os.mkdir(self.playlistdir)
 		
-		if not os.access(path, os.W_OK):
-			raise PlaylistError("Cannot write into playlist directory")	
+		if not os.access(self.playlistdir, os.W_OK):
+			raise PlaylistError("Cannot write into playlist directory: %s" % self.playlistdir)	
 		
-		files = os.listdir(path)
+		files = os.listdir(self.playlistdir)
+		jplFiles = []
 		for name in files:
 			if name.startswith("."): continue
 			fname, fext = os.path.splitext(name)
-			if not fext.lower() in [".jpl", ".m3u"]: continue
+			if fext.lower() != ".jpl": continue
 			
 			pl = PlayList(fname)
-			fn = os.path.join(path, name)
+			jplFiles.append(fname)
+			fn = os.path.join(self.playlistdir, name)
+			for line in file(fn, 'U'):
+				l = line.strip()
+				if l.startswith('#') or len(l) == 0:
+					continue
+				
+				so = self.sdb.getSongByFile(l)
+				if not so:
+					print "Playlist %s, no file with filename %s - skipping" % (name, l)
+				else:
+					pl.addSong(so)
+			
+			self.playlists.append(pl)
+			
+		for name in files:
+			if name.startswith("."): continue
+			fname, fext = os.path.splitext(name)
+			if fext.lower() != ".m3u": continue
+			
+			if fname in jplFiles:
+				print "skipping duplicate named M3U file %s" % fname
+				continue
+			
+			pl = PlayList(fname)
+			fn = os.path.join(self.playlistdir, name)
 			for line in file(fn, 'U'):
 				l = line.strip()
 				if l.startswith('#') or len(l) == 0:
@@ -78,7 +105,7 @@ class PlaylistMgr:
 		self.playlists = s
 			
 	def delPlaylistFile(self, name):
-		path = os.path.join(os.path.dirname(__file__), "playlists", name + ".jpl")
+		path = os.path.join(self.playlistdir, name + ".jpl")
 
 		try:
 			print "Attempting to delete (%s)" % path
@@ -91,7 +118,7 @@ class PlaylistMgr:
 			self.savePlaylist(p)
 			
 	def savePlaylist(self, pl):
-		fn = os.path.join(os.path.dirname(__file__), "playlists", pl.getName() + ".jpl")
+		fn = os.path.join(self.playlistdir, pl.getName() + ".jpl")
 		try:
 			fp = open(fn, "w")
 		except:
@@ -102,12 +129,12 @@ class PlaylistMgr:
 			fp.close()
 			
 		# remove corresponding m3u file if it exists
-		fn = os.path.join(os.path.dirname(__file__), "playlists", pl.getName() + ".m3u")
-		
-		try:
-			os.remove(fn)
-		except:
-			pass
+		# 		fn = os.path.join(self.playlistdir, pl.getName() + ".m3u")
+		# 		
+		# 		try:
+		# 			os.remove(fn)
+		# 		except:
+		# 			pass
 							
 	def buildPLMenu(self):
 		menu = []
@@ -182,8 +209,6 @@ class PlaylistMgr:
 				
 			else:
 				if self.clearPending:
-					print "value = ", value, ", length pl = ", len(self.playlists)
-					print "Index = ", self.plIndex
 					if value >= 0 and value < len(self.playlists):
 						self.delPlaylistFile(self.playlists[value].getName())
 						del self.playlists[value]

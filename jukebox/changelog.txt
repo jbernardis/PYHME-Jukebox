@@ -55,3 +55,7 @@ Version 1.1a - 9/16/2012
 - added new options - usefolderimage (default false) and folderartfiles
   (default folder.jpg) - that indicate to use an file in the same directory as the mp3
   file as the on-screen image.  Otherwise, the ID3 tag from the mp3 file itself is used.
+  
+Version 1.1b - 4/20/2013
+- added 'playlistdir' option to jukebox.ini file to specify where to find playlist files.  Default is 'playlists' directory
+  below jukebox program directory

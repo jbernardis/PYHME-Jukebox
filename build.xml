@@ -1,0 +1,26 @@
+<project default="install" name="jukebox">
+	<property name="stagedir" location="//Netgear/Stage/" />
+	<property name="gitdir" location="c:\users\jeff/pyhme-jukebox" />
+	<target name="install" description="copy resources and executables to destination directory">
+		<copy todir="${stagedir}/jukebox">
+			<fileset dir="${basedir}/src" includes="*.py" />
+			<fileset dir="${basedir}/src" includes="*.png" />
+			<fileset dir="${basedir}/src" includes="*.dist" />
+			<fileset dir="${basedir}/src" includes="*.txt" />
+			<fileset dir="${basedir}" includes="Makefile" />
+		</copy>
+		<copy todir="${stagedir}/jukebox/skins">
+			<fileset dir="${basedir}/src/skins" includes="*.png" />
+		</copy>
+		<copy todir="${gitdir}/jukebox">
+			<fileset dir="${basedir}/src" includes="*.py" />
+			<fileset dir="${basedir}/src" includes="*.png" />
+			<fileset dir="${basedir}/src" includes="*.dist" />
+			<fileset dir="${basedir}/src" includes="*.txt" />
+		</copy>
+		<copy todir="${gitdir}/jukebox/skins">
+			<fileset dir="${basedir}/src/skins" includes="*.png" />
+		</copy>
+	</target>
+</project>
+

@@ -17,8 +17,7 @@ else:
 class FindSongParser(HTMLParser):
 	def __init__(self):
 		HTMLParser.__init__(self)
-		self.lookingForTable = False
-		self.lookingForHref = False
+		self.inDivSen = False
 		self.matchURLs = []
 		
 	def __len__(self):
@@ -37,12 +36,15 @@ class FindSongParser(HTMLParser):
 		raise StopIteration
 
 	def handle_starttag(self, tag, attrs):
-		if tag == 'table' and self.lookingForTable:
-			self.lookingForHref = True
-					
-		if tag == 'a' and self.lookingForHref:
+		if tag == 'div':
 			adict = dict(attrs)
-			if 'href' in adict and 'rel' in adict and adict['rel'] == "external":
+			if 'class' in adict and adict['class']=="sen":	
+				self.inDivSen = True
+			else:
+				self.inDivSen = False				
+		if tag == 'a' and self.inDivSen:
+			adict = dict(attrs)
+			if 'href' in adict:
 				self.matchURLs.append(adict['href'])
 				
 	def handle_data(self, data):

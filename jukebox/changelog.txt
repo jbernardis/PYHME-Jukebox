@@ -59,3 +59,6 @@ Version 1.1a - 9/16/2012
 Version 1.1b - 4/20/2013
 - added 'playlistdir' option to jukebox.ini file to specify where to find playlist files.  Default is 'playlists' directory
   below jukebox program directory
+  
+Version 1.1c - 6/25/2013
+- Fixed lyrics retrieval

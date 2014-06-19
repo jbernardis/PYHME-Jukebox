@@ -103,7 +103,7 @@ sdb = SongGraph(opts)
 totalFileCount = 0
 
 for container, root in opts['containers']:
-	tree = os.walk(root)
+	tree = os.walk(root, followlinks=True)
 	fileCount = 0
 	print "Beginning container: %s (%s)" % (container, root)
 	

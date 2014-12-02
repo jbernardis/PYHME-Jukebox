@@ -15,6 +15,13 @@ from AlbumArt import resizeArt
 from Config import artWidth, artHeight, CACHEFILE
 from DBObjects import SongGraph, Song
 
+def makeASCII(s):
+	result = ""
+	for i in range(len(s)):
+		if ord(s[i]) < 128:
+			result += s[i]
+	return str(result)
+
 UNKNOWN = "<unknown>"
 
 def parseMP3(fn, path, opts):
@@ -141,7 +148,7 @@ for container, root in opts['containers']:
 						artIndex[albumName][albumArtistName] = artx
 						artRsz = resizeArt(art, artWidth, artHeight)
 						if artRsz == None:
-							print "Error resizing art for %s/%s" %(albumArtistName, albumName)
+							print "Error resizing art for %s/%s" %(makeASCII(albumArtistName), makeASCII(albumName))
 							
 						artList.append(artRsz)
 						ax += 1

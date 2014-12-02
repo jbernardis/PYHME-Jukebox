@@ -3,7 +3,7 @@ Created on Nov 23, 2011
 
 @author: Jeff
 '''
-import Image as img
+from PIL import Image as img
 from cStringIO import StringIO
 
 def resizeArt(data, width, height):

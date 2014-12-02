@@ -54,7 +54,7 @@ class PlaylistMgr:
 		files = os.listdir(self.playlistdir)
 		jplFiles = []
 		for name in files:
-			if name.startswith("."): continue
+			#if name.startswith("."): continue
 			fname, fext = os.path.splitext(name)
 			if fext.lower() != ".jpl": continue
 			
@@ -75,7 +75,7 @@ class PlaylistMgr:
 			self.playlists.append(pl)
 			
 		for name in files:
-			if name.startswith("."): continue
+			#if name.startswith("."): continue
 			fname, fext = os.path.splitext(name)
 			if fext.lower() != ".m3u": continue
 			
